@@ -1,0 +1,363 @@
+[
+  {
+    "id": "fake-convo-001",
+    "title": "FAKE: Basic test conversation (obviously not real)",
+    "create_time": 1768200000.0,
+    "update_time": 1768200300.0,
+    "mapping": {
+      "root": {
+        "id": "root",
+        "parent": null,
+        "children": ["u1"],
+        "message": null
+      },
+      "u1": {
+        "id": "u1",
+        "parent": "root",
+        "children": ["a1"],
+        "message": {
+          "id": "m-u1",
+          "author": { "role": "user" },
+          "create_time": 1768200001.0,
+          "content": { "content_type": "text", "parts": ["This is a test question. Are you an AI?"] }
+        }
+      },
+      "a1": {
+        "id": "a1",
+        "parent": "u1",
+        "children": ["u2"],
+        "message": {
+          "id": "m-a1",
+          "author": { "role": "assistant" },
+          "create_time": 1768200004.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Yes — I’m an AI assistant. This conversation is part of a fake test export designed for parsing and rendering."
+            ]
+          }
+        }
+      },
+      "u2": {
+        "id": "u2",
+        "parent": "a1",
+        "children": ["a2_main", "a2_alt"],
+        "message": {
+          "id": "m-u2",
+          "author": { "role": "user" },
+          "create_time": 1768200010.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "This is another test question. Please answer in one sentence, and then pretend I regenerated your answer."
+            ]
+          }
+        }
+      },
+      "a2_main": {
+        "id": "a2_main",
+        "parent": "u2",
+        "children": ["u3"],
+        "message": {
+          "id": "m-a2-main",
+          "author": { "role": "assistant" },
+          "create_time": 1768200016.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "One-sentence answer: this is a deliberately fake conversation used to test exporting and rendering."
+            ]
+          }
+        }
+      },
+      "a2_alt": {
+        "id": "a2_alt",
+        "parent": "u2",
+        "children": [],
+        "message": {
+          "id": "m-a2-alt",
+          "author": { "role": "assistant" },
+          "create_time": 1768200017.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Alternate answer (fake regen): yes, this is test data intended to be obviously artificial while still readable."
+            ]
+          }
+        }
+      },
+      "u3": {
+        "id": "u3",
+        "parent": "a2_main",
+        "children": ["a3"],
+        "message": {
+          "id": "m-u3",
+          "author": { "role": "user" },
+          "create_time": 1768200025.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Final fake prompt: list three output formats this tool might generate."
+            ]
+          }
+        }
+      },
+      "a3": {
+        "id": "a3",
+        "parent": "u3",
+        "children": [],
+        "message": {
+          "id": "m-a3",
+          "author": { "role": "assistant" },
+          "create_time": 1768200032.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Markdown, HTML, and plain text."
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "fake-convo-002",
+    "title": "FAKE: Project chat (obviously not real)",
+    "create_time": 1768210000.0,
+    "update_time": 1768210600.0,
+    "project": {
+      "id": "fake-project-001",
+      "name": "FAKE PROJECT: Demo Project"
+    },
+    "mapping": {
+      "root": {
+        "id": "root",
+        "parent": null,
+        "children": ["u1"],
+        "message": null
+      },
+      "u1": {
+        "id": "u1",
+        "parent": "root",
+        "children": ["a1"],
+        "message": {
+          "id": "m-u1",
+          "author": { "role": "user" },
+          "create_time": 1768210002.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "This is a fake Project conversation. Please confirm you see the Project metadata."
+            ]
+          }
+        }
+      },
+      "a1": {
+        "id": "a1",
+        "parent": "u1",
+        "children": ["u2"],
+        "message": {
+          "id": "m-a1",
+          "author": { "role": "assistant" },
+          "create_time": 1768210008.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Confirmed: this fake export includes Project metadata fields (project id and name) to test tagging."
+            ]
+          }
+        }
+      },
+      "u2": {
+        "id": "u2",
+        "parent": "a1",
+        "children": ["a2_main", "a2_alt_1", "a2_alt_2"],
+        "message": {
+          "id": "m-u2",
+          "author": { "role": "user" },
+          "create_time": 1768210015.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Fake question: give a short, professional summary of what this parser does. Include alternates to simulate multiple answers."
+            ]
+          }
+        }
+      },
+      "a2_main": {
+        "id": "a2_main",
+        "parent": "u2",
+        "children": ["u3"],
+        "message": {
+          "id": "m-a2-main",
+          "author": { "role": "assistant" },
+          "create_time": 1768210022.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "This parser reads the official ChatGPT data export and renders each conversation into human-readable transcripts while preserving message roles and metadata."
+            ]
+          }
+        }
+      },
+      "a2_alt_1": {
+        "id": "a2_alt_1",
+        "parent": "u2",
+        "children": [],
+        "message": {
+          "id": "m-a2-alt-1",
+          "author": { "role": "assistant" },
+          "create_time": 1768210023.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Alternate answer (fake regen): it converts ChatGPT export JSON into readable documents and keeps things like timestamps and roles when available."
+            ]
+          }
+        }
+      },
+      "a2_alt_2": {
+        "id": "a2_alt_2",
+        "parent": "u2",
+        "children": [],
+        "message": {
+          "id": "m-a2-alt-2",
+          "author": { "role": "assistant" },
+          "create_time": 1768210024.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Alternate answer (fake regen): it is a resume-friendly example project demonstrating parsing, data modelling, and multi-format rendering."
+            ]
+          }
+        }
+      },
+      "u3": {
+        "id": "u3",
+        "parent": "a2_main",
+        "children": ["a3"],
+        "message": {
+          "id": "m-u3",
+          "author": { "role": "user" },
+          "create_time": 1768210030.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Fake follow-up: list two risks this tool avoids by design (keep it professional)."
+            ]
+          }
+        }
+      },
+      "a3": {
+        "id": "a3",
+        "parent": "u3",
+        "children": [],
+        "message": {
+          "id": "m-a3",
+          "author": { "role": "assistant" },
+          "create_time": 1768210038.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "It avoids committing private exports to Git, and it avoids silently dropping conversation content by preserving alternates and emitting audit-style output."
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "fake-convo-003",
+    "title": "FAKE: Non-text placeholder test (obviously not real)",
+    "create_time": 1768220000.0,
+    "update_time": 1768220200.0,
+    "mapping": {
+      "root": {
+        "id": "root",
+        "parent": null,
+        "children": ["u1"],
+        "message": null
+      },
+      "u1": {
+        "id": "u1",
+        "parent": "root",
+        "children": ["a1"],
+        "message": {
+          "id": "m-u1",
+          "author": { "role": "user" },
+          "create_time": 1768220002.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Fake question: insert one non-text message after your reply, so we can test placeholders."
+            ]
+          }
+        }
+      },
+      "a1": {
+        "id": "a1",
+        "parent": "u1",
+        "children": ["tool1", "u2"],
+        "message": {
+          "id": "m-a1",
+          "author": { "role": "assistant" },
+          "create_time": 1768220010.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Acknowledged. The next node is deliberately non-text to simulate tool output or attachments in a real export."
+            ]
+          }
+        }
+      },
+      "tool1": {
+        "id": "tool1",
+        "parent": "a1",
+        "children": [],
+        "message": {
+          "id": "m-tool1",
+          "author": { "role": "tool" },
+          "create_time": 1768220011.0,
+          "content": {
+            "content_type": "tool_result",
+            "parts": [
+              { "fake": true, "note": "This is a placeholder object to test non-text handling." }
+            ]
+          }
+        }
+      },
+      "u2": {
+        "id": "u2",
+        "parent": "a1",
+        "children": ["a2"],
+        "message": {
+          "id": "m-u2",
+          "author": { "role": "user" },
+          "create_time": 1768220018.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Final fake follow-up: would a placeholder like [tool_result] be acceptable in a transcript?"
+            ]
+          }
+        }
+      },
+      "a2": {
+        "id": "a2",
+        "parent": "u2",
+        "children": [],
+        "message": {
+          "id": "m-a2",
+          "author": { "role": "assistant" },
+          "create_time": 1768220026.0,
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Yes — a clear placeholder is acceptable, as long as it makes the transcript readable and signals that the original content was non-text."
+            ]
+          }
+        }
+      }
+    }
+  }
+]
