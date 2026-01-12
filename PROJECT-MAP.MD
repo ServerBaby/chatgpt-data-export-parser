@@ -262,6 +262,7 @@ Why this matters:
 
 ## Final recommended structure (once the minimum is in place)
 
+```text
 chatgpt-data-export-parser/
 ├── README.md
 ├── LICENSE
@@ -270,11 +271,13 @@ chatgpt-data-export-parser/
 ├── model.py
 ├── parser.py
 ├── renderers/
-│   ├── **init**.py
+│   ├── __init__.py
 │   ├── text.py
 │   └── markdown.py
 └── examples/
-└── conversations_fake.json
+    └── conversations_fake.json
+```
+
 
 ## Files deliberately NOT needed yet (avoid overengineering early)
 
