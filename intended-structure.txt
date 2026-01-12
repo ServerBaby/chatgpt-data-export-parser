@@ -1,0 +1,15 @@
+Initial intended structure:
+
+chatgpt-data-export-parser/
+├── README.md
+├── LICENSE
+├── .gitignore
+├── convert.py              # CLI entry point
+├── parser.py               # Export → internal model
+├── model.py                # Conversation data structures
+├── renderers/
+│   ├── __init__.py
+│   ├── text.py             # TXT output
+│   └── markdown.py         # MD output
+└── examples/
+    └── conversations_fake.json
