@@ -1,436 +1,448 @@
 [
-    {
-        "schema": "processed_tree_v1",
-        "conversation_id": "c-7b2f9a8d1c3e4f50a6b7c8d9e0f11223",
-        "title": "Fake demo: big tree with alternates, tool steps, and long back-and-forth",
-        "create_time": 1768260000.123,
-        "update_time": 1768262000.456,
-        "project": {
-            "id": "p-0aa11bb22cc33dd44ee55ff66",
-            "name": "Demo Project: Tree Renderer Tests"
-        },
-        "root_node_id": "root",
-        "nodes": {
-            "root": {
-                "source_node_id": "root",
-                "parent": null,
-                "children": [
-                    "n_001_user"
-                ],
-                "message": null
-            },
-            "n_001_user": {
-                "source_node_id": "n_001_user",
-                "parent": "root",
-                "children": [
-                    "n_002_asst_a",
-                    "n_002_asst_b"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-001-aabbccdd",
-                    "create_time": 1768260005.0,
-                    "text": "This is a fake question: explain what a 'tree' data structure is, like I'm tired."
-                }
-            },
-            "n_002_asst_a": {
-                "source_node_id": "n_002_asst_a",
-                "parent": "n_001_user",
-                "children": [
-                    "n_003_user_a1"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-002-11112222",
-                    "create_time": 1768260010.0,
-                    "text": "Fake answer A: A tree is a set of connected items where one item is the 'parent' and it can have 'children'. It branches like a family tree."
-                }
-            },
-            "n_003_user_a1": {
-                "source_node_id": "n_003_user_a1",
-                "parent": "n_002_asst_a",
-                "children": [
-                    "n_004_asst_a1"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-003-aaaa0001",
-                    "create_time": 1768260020.0,
-                    "text": "Okay. Now explain what a node is versus a message id."
-                }
-            },
-            "n_004_asst_a1": {
-                "source_node_id": "n_004_asst_a1",
-                "parent": "n_003_user_a1",
-                "children": [
-                    "n_005_user_a2",
-                    "n_005_user_a2_alt"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-004-aaaa0002",
-                    "create_time": 1768260030.0,
-                    "text": "Fake answer: A node is the position in the tree. A message id is the id for the text content. Some nodes have no message (structure only)."
-                }
-            },
-            "n_005_user_a2": {
-                "source_node_id": "n_005_user_a2",
-                "parent": "n_004_asst_a1",
-                "children": [
-                    "n_006_asst_a2"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-005-aaaa0003",
-                    "create_time": 1768260040.0,
-                    "text": "Fake follow-up: show a small example with root, one child, then two children."
-                }
-            },
-            "n_006_asst_a2": {
-                "source_node_id": "n_006_asst_a2",
-                "parent": "n_005_user_a2",
-                "children": [
-                    "n_007_user_a3"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-006-aaaa0004",
-                    "create_time": 1768260050.0,
-                    "text": "Fake example: root -> A. Then A -> B and C. That means A has two children, B and C."
-                }
-            },
-            "n_007_user_a3": {
-                "source_node_id": "n_007_user_a3",
-                "parent": "n_006_asst_a2",
-                "children": [
-                    "n_008_asst_tool_path"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-007-aaaa0005",
-                    "create_time": 1768260060.0,
-                    "text": "Fake follow-up: can you calculate how many nodes are in this example if I add D under B and E under C?"
-                }
-            },
-            "n_008_asst_tool_path": {
-                "source_node_id": "n_008_asst_tool_path",
-                "parent": "n_007_user_a3",
-                "children": [
-                    "n_009_tool_call",
-                    "n_009_asst_direct_answer"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-008-aaaa0006",
-                    "create_time": 1768260070.0,
-                    "text": "Fake assistant: I'll answer directly, but I'll also show a tool-style step so we can test tool nodes."
-                }
-            },
-            "n_009_asst_direct_answer": {
-                "source_node_id": "n_009_asst_direct_answer",
-                "parent": "n_008_asst_tool_path",
-                "children": [
-                    "n_010_user_after_count"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-009-aaaa0007",
-                    "create_time": 1768260075.0,
-                    "text": "Fake direct count: root, A, B, C, D, E = 6 nodes total."
-                }
-            },
-            "n_009_tool_call": {
-                "source_node_id": "n_009_tool_call",
-                "parent": "n_008_asst_tool_path",
-                "children": [
-                    "n_009_tool_result"
-                ],
-                "message": {
-                    "role": "tool",
-                    "source_message_id": "msg-t-009-toolcall",
-                    "create_time": 1768260076.0,
-                    "text": "[tool_call] python: count_nodes(['root','A','B','C','D','E'])"
-                }
-            },
-            "n_009_tool_result": {
-                "source_node_id": "n_009_tool_result",
-                "parent": "n_009_tool_call",
-                "children": [
-                    "n_010_user_after_count_alt"
-                ],
-                "message": {
-                    "role": "tool",
-                    "source_message_id": "msg-t-010-toolresult",
-                    "create_time": 1768260076.2,
-                    "text": "[tool_result] 6"
-                }
-            },
-            "n_010_user_after_count": {
-                "source_node_id": "n_010_user_after_count",
-                "parent": "n_009_asst_direct_answer",
-                "children": [
-                    "n_011_asst_explain_traversal"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-011-aaaa0008",
-                    "create_time": 1768260100.0,
-                    "text": "Nice. Fake follow-up: what's traversal and why do people talk about depth-first vs breadth-first?"
-                }
-            },
-            "n_010_user_after_count_alt": {
-                "source_node_id": "n_010_user_after_count_alt",
-                "parent": "n_009_tool_result",
-                "children": [
-                    "n_011_asst_explain_traversal_alt"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-012-aaaa0009",
-                    "create_time": 1768260100.1,
-                    "text": "Fake follow-up on tool branch: okay, now show traversal in plain language."
-                }
-            },
-            "n_011_asst_explain_traversal": {
-                "source_node_id": "n_011_asst_explain_traversal",
-                "parent": "n_010_user_after_count",
-                "children": [
-                    "n_012_user_deeper",
-                    "n_012_user_deeper_alt"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-013-bbbb0001",
-                    "create_time": 1768260120.0,
-                    "text": "Fake traversal answer: Traversal means the order you visit nodes. Depth-first goes down a branch before backing up. Breadth-first visits all siblings first."
-                }
-            },
-            "n_011_asst_explain_traversal_alt": {
-                "source_node_id": "n_011_asst_explain_traversal_alt",
-                "parent": "n_010_user_after_count_alt",
-                "children": [
-                    "n_012_user_deeper_tool_alt"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-014-bbbb0002",
-                    "create_time": 1768260121.0,
-                    "text": "Fake traversal answer (alt): Think of exploring a building. Depth-first: go deep into one hallway. Breadth-first: check every room on this floor first."
-                }
-            },
-            "n_012_user_deeper": {
-                "source_node_id": "n_012_user_deeper",
-                "parent": "n_011_asst_explain_traversal",
-                "children": [
-                    "n_013_asst_depth_demo"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-015-bbbb0003",
-                    "create_time": 1768260130.0,
-                    "text": "Fake: show me depth-first order on root->A, A->B,C, B->D, C->E."
-                }
-            },
-            "n_013_asst_depth_demo": {
-                "source_node_id": "n_013_asst_depth_demo",
-                "parent": "n_012_user_deeper",
-                "children": [
-                    "n_014_user_breadth_demo"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-016-bbbb0004",
-                    "create_time": 1768260140.0,
-                    "text": "Fake DFS order: root, A, B, D, C, E (assuming pre-order)."
-                }
-            },
-            "n_014_user_breadth_demo": {
-                "source_node_id": "n_014_user_breadth_demo",
-                "parent": "n_013_asst_depth_demo",
-                "children": [
-                    "n_015_asst_breadth_demo"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-017-bbbb0005",
-                    "create_time": 1768260150.0,
-                    "text": "Fake: now breadth-first order."
-                }
-            },
-            "n_015_asst_breadth_demo": {
-                "source_node_id": "n_015_asst_breadth_demo",
-                "parent": "n_014_user_breadth_demo",
-                "children": [
-                    "n_016_user_branching_question"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-018-bbbb0006",
-                    "create_time": 1768260160.0,
-                    "text": "Fake BFS order: root, A, B, C, D, E."
-                }
-            },
-            "n_016_user_branching_question": {
-                "source_node_id": "n_016_user_branching_question",
-                "parent": "n_015_asst_breadth_demo",
-                "children": [
-                    "n_017_asst_about_alternates"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-019-bbbb0007",
-                    "create_time": 1768260170.0,
-                    "text": "Fake: why does ChatGPT export have forks? I thought conversations were linear."
-                }
-            },
-            "n_017_asst_about_alternates": {
-                "source_node_id": "n_017_asst_about_alternates",
-                "parent": "n_016_user_branching_question",
-                "children": [
-                    "n_018_user_specific",
-                    "n_018_user_specific_alt1",
-                    "n_018_user_specific_alt2"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-020-bbbb0008",
-                    "create_time": 1768260180.0,
-                    "text": "Fake: forks happen when you regenerate replies, edit prompts, or branch from earlier points. The export preserves the whole tree, not just one path."
-                }
-            },
-            "n_018_user_specific": {
-                "source_node_id": "n_018_user_specific",
-                "parent": "n_017_asst_about_alternates",
-                "children": [
-                    "n_019_asst_branch_pick"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-021-cccc0001",
-                    "create_time": 1768260190.0,
-                    "text": "Fake: how do I choose a 'main' branch for readable transcripts?"
-                }
-            },
-            "n_019_asst_branch_pick": {
-                "source_node_id": "n_019_asst_branch_pick",
-                "parent": "n_018_user_specific",
-                "children": [],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-022-cccc0002",
-                    "create_time": 1768260200.0,
-                    "text": "Fake: one approach is choose the longest continuing path. Another is keep every alternate as separate transcripts. Your tool can do either."
-                }
-            },
-            "n_018_user_specific_alt1": {
-                "source_node_id": "n_018_user_specific_alt1",
-                "parent": "n_017_asst_about_alternates",
-                "children": [
-                    "n_019_asst_ids"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-023-cccc0003",
-                    "create_time": 1768260191.0,
-                    "text": "Fake: what IDs should I preserve so I can trace these branches later?"
-                }
-            },
-            "n_019_asst_ids": {
-                "source_node_id": "n_019_asst_ids",
-                "parent": "n_018_user_specific_alt1",
-                "children": [],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-024-cccc0004",
-                    "create_time": 1768260201.0,
-                    "text": "Fake: keep node_id (tree structure), source_message_id (message identity), and parent/children. Add your own stable turn ids if you want."
-                }
-            },
-            "n_018_user_specific_alt2": {
-                "source_node_id": "n_018_user_specific_alt2",
-                "parent": "n_017_asst_about_alternates",
-                "children": [
-                    "n_019_asst_projects"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-025-cccc0005",
-                    "create_time": 1768260192.0,
-                    "text": "Fake: does this change for projects versus regular chats?"
-                }
-            },
-            "n_019_asst_projects": {
-                "source_node_id": "n_019_asst_projects",
-                "parent": "n_018_user_specific_alt2",
-                "children": [],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-026-cccc0006",
-                    "create_time": 1768260202.0,
-                    "text": "Fake: the core tree structure is the same; projects are just metadata you may want to tag and filter on output."
-                }
-            },
-            "n_005_user_a2_alt": {
-                "source_node_id": "n_005_user_a2_alt",
-                "parent": "n_004_asst_a1",
-                "children": [
-                    "n_006_asst_a2_alt"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-005b-alt-0001",
-                    "create_time": 1768260041.0,
-                    "text": "Fake alternate: ignore the example; instead, explain why tree render output might get huge."
-                }
-            },
-            "n_006_asst_a2_alt": {
-                "source_node_id": "n_006_asst_a2_alt",
-                "parent": "n_005_user_a2_alt",
-                "children": [],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-006b-alt-0002",
-                    "create_time": 1768260051.0,
-                    "text": "Fake: it gets huge because every regeneration creates another branch, so the number of nodes grows quickly, even if your day-to-day view felt linear."
-                }
-            },
-            "n_002_asst_b": {
-                "source_node_id": "n_002_asst_b",
-                "parent": "n_001_user",
-                "children": [
-                    "n_003_user_b1"
-                ],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-002b-33334444",
-                    "create_time": 1768260011.0,
-                    "text": "Fake answer B (regenerated): A tree is like folders in Windows: one folder can contain subfolders, which can contain more subfolders."
-                }
-            },
-            "n_003_user_b1": {
-                "source_node_id": "n_003_user_b1",
-                "parent": "n_002_asst_b",
-                "children": [
-                    "n_004_asst_b1"
-                ],
-                "message": {
-                    "role": "user",
-                    "source_message_id": "msg-u-003b-bbbb1111",
-                    "create_time": 1768260021.0,
-                    "text": "Fake: okay, compare that to a linked list. Why isn't this always a tree?"
-                }
-            },
-            "n_004_asst_b1": {
-                "source_node_id": "n_004_asst_b1",
-                "parent": "n_003_user_b1",
-                "children": [],
-                "message": {
-                    "role": "assistant",
-                    "source_message_id": "msg-a-004b-bbbb2222",
-                    "create_time": 1768260031.0,
-                    "text": "Fake: a linked list is mostly one path. A tree allows branching (many children). The export is a tree because edits/regenerations create branches."
-                }
-            }
+  {
+    "schema": "processed_tree_v1",
+    "conversation_id": "15190545-c448-41b1-a2eb-455c6dd63596",
+    "title": "Fake demo: big tree with alternates, tool steps, and long back-and-forth",
+    "create_time": 1768260000.123,
+    "update_time": 1768262000.456,
+    "project": {
+      "id": "cad2d30b-9d93-4cc3-95c1-60cc0d43cf97",
+      "name": "Demo Project: Tree Renderer Tests"
+    },
+    "root_node_id": "1d7d4c16-0d57-4342-8d44-883a6a783503",
+    "nodes": {
+      "1d7d4c16-0d57-4342-8d44-883a6a783503": {
+        "source_node_id": "1d7d4c16-0d57-4342-8d44-883a6a783503",
+        "parent": null,
+        "children": [
+          "6eef9f80-d472-4201-a43d-fffe471d9ff0"
+        ],
+        "message": null
+      },
+      "6eef9f80-d472-4201-a43d-fffe471d9ff0": {
+        "source_node_id": "6eef9f80-d472-4201-a43d-fffe471d9ff0",
+        "parent": "1d7d4c16-0d57-4342-8d44-883a6a783503",
+        "children": [
+          "937c729f-041e-4743-afdd-7af913df74ff",
+          "5c720be6-6200-4e75-bdef-96b68ea838f2"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-a6b80af0cab42e29",
+          "create_time": 1768260005.0,
+          "text": "This is a fake question: explain what a 'tree' data structure is, like I'm tired."
         }
+      },
+      "937c729f-041e-4743-afdd-7af913df74ff": {
+        "source_node_id": "937c729f-041e-4743-afdd-7af913df74ff",
+        "parent": "6eef9f80-d472-4201-a43d-fffe471d9ff0",
+        "children": [
+          "a0f4922b-9a2b-46a4-ae89-e8b50778860a"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-8b90aee6c4a822e1",
+          "create_time": 1768260010.0,
+          "text": "Fake answer A: A tree is a set of connected items where one item is the 'parent' and it can have 'children'. It branches like a family tree."
+        }
+      },
+      "a0f4922b-9a2b-46a4-ae89-e8b50778860a": {
+        "source_node_id": "a0f4922b-9a2b-46a4-ae89-e8b50778860a",
+        "parent": "937c729f-041e-4743-afdd-7af913df74ff",
+        "children": [
+          "ef27785d-a4b8-4d98-a03c-f04dee30b754"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-5f1e986b0f3b712b",
+          "create_time": 1768260020.0,
+          "text": "Okay. Now explain what a node is versus a message id."
+        }
+      },
+      "ef27785d-a4b8-4d98-a03c-f04dee30b754": {
+        "source_node_id": "ef27785d-a4b8-4d98-a03c-f04dee30b754",
+        "parent": "a0f4922b-9a2b-46a4-ae89-e8b50778860a",
+        "children": [
+          "7f505f54-38d1-48f0-b888-02d7999e1409",
+          "7b9cbf6a-93c3-45d2-98cb-4dab02f7572c"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-5e6fc1c2378ec493",
+          "create_time": 1768260030.0,
+          "text": "Fake answer: A node is the position in the tree. A message id is the id for the text content. Some nodes have no message (structure only)."
+        }
+      },
+      "7f505f54-38d1-48f0-b888-02d7999e1409": {
+        "source_node_id": "7f505f54-38d1-48f0-b888-02d7999e1409",
+        "parent": "ef27785d-a4b8-4d98-a03c-f04dee30b754",
+        "children": [
+          "6f9912c4-7b27-419a-82a3-96e34eefe930"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-5207d559d4c95735",
+          "create_time": 1768260040.0,
+          "text": "Fake follow-up: show a small example with root, one child, then two children."
+        }
+      },
+      "6f9912c4-7b27-419a-82a3-96e34eefe930": {
+        "source_node_id": "6f9912c4-7b27-419a-82a3-96e34eefe930",
+        "parent": "7f505f54-38d1-48f0-b888-02d7999e1409",
+        "children": [
+          "efabf9b7-dd72-4fc0-8e30-5bbe732837d1"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-4e2b03b3b4f3d3d3",
+          "create_time": 1768260050.0,
+          "text": "Fake example: root -> A. Then A -> B and C. That means A has two children, B and C."
+        }
+      },
+      "efabf9b7-dd72-4fc0-8e30-5bbe732837d1": {
+        "source_node_id": "efabf9b7-dd72-4fc0-8e30-5bbe732837d1",
+        "parent": "6f9912c4-7b27-419a-82a3-96e34eefe930",
+        "children": [
+          "d91e3ab5-c187-4259-8dd1-0526ffee9b3f"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-0d5f6a2d9f4f7f58",
+          "create_time": 1768260060.0,
+          "text": "Fake follow-up: can you calculate how many nodes are in this example if I add D under B and E under C?"
+        }
+      },
+      "d91e3ab5-c187-4259-8dd1-0526ffee9b3f": {
+        "source_node_id": "d91e3ab5-c187-4259-8dd1-0526ffee9b3f",
+        "parent": "efabf9b7-dd72-4fc0-8e30-5bbe732837d1",
+        "children": [
+          "7488031a-1782-46c6-91ca-54c643686bfa",
+          "9508dad0-3f9d-4de6-9924-076328cbfe16"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-6df4d1d5a3bbca3f",
+          "create_time": 1768260070.0,
+          "text": "Fake assistant: I'll answer directly, but I'll also show a tool-style step so we can test tool nodes."
+        }
+      },
+      "9508dad0-3f9d-4de6-9924-076328cbfe16": {
+        "source_node_id": "9508dad0-3f9d-4de6-9924-076328cbfe16",
+        "parent": "d91e3ab5-c187-4259-8dd1-0526ffee9b3f",
+        "children": [
+          "12a79ee9-2e1c-4a1f-b7df-55d93754d0c6"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-7f86a9c9f2b4cf0f",
+          "create_time": 1768260075.0,
+          "text": "Fake direct count: root, A, B, C, D, E = 6 nodes total."
+        }
+      },
+      "7488031a-1782-46c6-91ca-54c643686bfa": {
+        "source_node_id": "7488031a-1782-46c6-91ca-54c643686bfa",
+        "parent": "d91e3ab5-c187-4259-8dd1-0526ffee9b3f",
+        "children": [
+          "ee3dfc2b-aeaa-4173-bcff-0e5e90ee563b"
+        ],
+        "message": {
+          "role": "tool",
+          "source_message_id": "msg-82ac7dd4fc6e025c",
+          "create_time": 1768260076.0,
+          "text": "[tool_call] python: count_nodes(['root','A','B','C','D','E'])"
+        }
+      },
+      "ee3dfc2b-aeaa-4173-bcff-0e5e90ee563b": {
+        "source_node_id": "ee3dfc2b-aeaa-4173-bcff-0e5e90ee563b",
+        "parent": "7488031a-1782-46c6-91ca-54c643686bfa",
+        "children": [
+          "20bf427a-b035-42fa-bba7-17cc21bc3bc2"
+        ],
+        "message": {
+          "role": "tool",
+          "source_message_id": "msg-7c7b4fcb0b4a3cb9",
+          "create_time": 1768260076.2,
+          "text": "[tool_result] 6"
+        }
+      },
+      "12a79ee9-2e1c-4a1f-b7df-55d93754d0c6": {
+        "source_node_id": "12a79ee9-2e1c-4a1f-b7df-55d93754d0c6",
+        "parent": "9508dad0-3f9d-4de6-9924-076328cbfe16",
+        "children": [
+          "9ebb7f6b-d9d6-4ea6-b425-7c14577821da"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-8ed31a77b2d5af3c",
+          "create_time": 1768260100.0,
+          "text": "Nice. Fake follow-up: what's traversal and why do people talk about depth-first vs breadth-first?"
+        }
+      },
+      "20bf427a-b035-42fa-bba7-17cc21bc3bc2": {
+        "source_node_id": "20bf427a-b035-42fa-bba7-17cc21bc3bc2",
+        "parent": "ee3dfc2b-aeaa-4173-bcff-0e5e90ee563b",
+        "children": [
+          "3fb002cb-e66c-4214-924d-3b38b02f7fc9"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-2a7d3b5fe3d1c2a7",
+          "create_time": 1768260100.1,
+          "text": "Fake follow-up on tool branch: okay, now show traversal in plain language."
+        }
+      },
+      "9ebb7f6b-d9d6-4ea6-b425-7c14577821da": {
+        "source_node_id": "9ebb7f6b-d9d6-4ea6-b425-7c14577821da",
+        "parent": "12a79ee9-2e1c-4a1f-b7df-55d93754d0c6",
+        "children": [
+          "d644706e-af4b-4d3c-bb5a-70a43bb01a46",
+          "33a7df50-887a-43be-a181-9829ec787dd8"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-d4c07e4822d6ef8e",
+          "create_time": 1768260120.0,
+          "text": "Fake traversal answer: Traversal means the order you visit nodes. Depth-first goes down a branch before backing up. Breadth-first visits all siblings first."
+        }
+      },
+      "3fb002cb-e66c-4214-924d-3b38b02f7fc9": {
+        "source_node_id": "3fb002cb-e66c-4214-924d-3b38b02f7fc9",
+        "parent": "20bf427a-b035-42fa-bba7-17cc21bc3bc2",
+        "children": [
+          "61c8a2b7-1a42-4ebc-ab3d-84a8f94f5299"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-0b2b8a2b28df0df7",
+          "create_time": 1768260121.0,
+          "text": "Fake traversal answer (alt): Think of exploring a building. Depth-first: go deep into one hallway. Breadth-first: check every room on this floor first."
+        }
+      },
+      "33a7df50-887a-43be-a181-9829ec787dd8": {
+        "source_node_id": "33a7df50-887a-43be-a181-9829ec787dd8",
+        "parent": "9ebb7f6b-d9d6-4ea6-b425-7c14577821da",
+        "children": [],
+        "message": null
+      },
+      "61c8a2b7-1a42-4ebc-ab3d-84a8f94f5299": {
+        "source_node_id": "61c8a2b7-1a42-4ebc-ab3d-84a8f94f5299",
+        "parent": "3fb002cb-e66c-4214-924d-3b38b02f7fc9",
+        "children": [],
+        "message": null
+      },
+      "d644706e-af4b-4d3c-bb5a-70a43bb01a46": {
+        "source_node_id": "d644706e-af4b-4d3c-bb5a-70a43bb01a46",
+        "parent": "9ebb7f6b-d9d6-4ea6-b425-7c14577821da",
+        "children": [
+          "b0381bb6-b4c7-48c5-a7fe-b31273b9877c"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-3bff97c5f5d8b6cf",
+          "create_time": 1768260130.0,
+          "text": "Fake: show me depth-first order on root->A, A->B,C, B->D, C->E."
+        }
+      },
+      "b0381bb6-b4c7-48c5-a7fe-b31273b9877c": {
+        "source_node_id": "b0381bb6-b4c7-48c5-a7fe-b31273b9877c",
+        "parent": "d644706e-af4b-4d3c-bb5a-70a43bb01a46",
+        "children": [
+          "471b08ae-7210-4313-a667-91936dd24197"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-215cc8d8173eb50f",
+          "create_time": 1768260140.0,
+          "text": "Fake DFS order: root, A, B, D, C, E (assuming pre-order)."
+        }
+      },
+      "471b08ae-7210-4313-a667-91936dd24197": {
+        "source_node_id": "471b08ae-7210-4313-a667-91936dd24197",
+        "parent": "b0381bb6-b4c7-48c5-a7fe-b31273b9877c",
+        "children": [
+          "62f8fce4-2ffb-4e9c-9b4b-3d00fc2c8aee"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-61ee85eeec3b6f45",
+          "create_time": 1768260150.0,
+          "text": "Fake: now breadth-first order."
+        }
+      },
+      "62f8fce4-2ffb-4e9c-9b4b-3d00fc2c8aee": {
+        "source_node_id": "62f8fce4-2ffb-4e9c-9b4b-3d00fc2c8aee",
+        "parent": "471b08ae-7210-4313-a667-91936dd24197",
+        "children": [
+          "f8474634-d338-4796-a6b6-469fe5ce5cd0"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-7187470953f71d2c",
+          "create_time": 1768260160.0,
+          "text": "Fake BFS order: root, A, B, C, D, E."
+        }
+      },
+      "f8474634-d338-4796-a6b6-469fe5ce5cd0": {
+        "source_node_id": "f8474634-d338-4796-a6b6-469fe5ce5cd0",
+        "parent": "62f8fce4-2ffb-4e9c-9b4b-3d00fc2c8aee",
+        "children": [
+          "be9223ac-b9c8-43c8-9de9-a788e917eb75"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-2a644f8d0e93ce26",
+          "create_time": 1768260170.0,
+          "text": "Fake: why does ChatGPT export have forks? I thought conversations were linear."
+        }
+      },
+      "be9223ac-b9c8-43c8-9de9-a788e917eb75": {
+        "source_node_id": "be9223ac-b9c8-43c8-9de9-a788e917eb75",
+        "parent": "f8474634-d338-4796-a6b6-469fe5ce5cd0",
+        "children": [
+          "508b3c62-867b-4f92-9257-71f4920d1b09",
+          "5b075e2f-300f-4490-b4a4-357dc80941e8",
+          "009e90c6-5c9a-43b9-b45f-7389482f0b32"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-11c402323cb16ebc",
+          "create_time": 1768260180.0,
+          "text": "Fake: forks happen when you regenerate replies, edit prompts, or branch from earlier points. The export preserves the whole tree, not just one path."
+        }
+      },
+      "508b3c62-867b-4f92-9257-71f4920d1b09": {
+        "source_node_id": "508b3c62-867b-4f92-9257-71f4920d1b09",
+        "parent": "be9223ac-b9c8-43c8-9de9-a788e917eb75",
+        "children": [
+          "c07ede47-c36c-436b-b1b7-7d4c302328c1"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-0c7be888b6ec9a53",
+          "create_time": 1768260190.0,
+          "text": "Fake: how do I choose a 'main' branch for readable transcripts?"
+        }
+      },
+      "c07ede47-c36c-436b-b1b7-7d4c302328c1": {
+        "source_node_id": "c07ede47-c36c-436b-b1b7-7d4c302328c1",
+        "parent": "508b3c62-867b-4f92-9257-71f4920d1b09",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-4e2e84c9aa24977d",
+          "create_time": 1768260200.0,
+          "text": "Fake: one approach is choose the longest continuing path. Another is keep every alternate as separate transcripts. Your tool can do either."
+        }
+      },
+      "5b075e2f-300f-4490-b4a4-357dc80941e8": {
+        "source_node_id": "5b075e2f-300f-4490-b4a4-357dc80941e8",
+        "parent": "be9223ac-b9c8-43c8-9de9-a788e917eb75",
+        "children": [
+          "4320a9bf-472b-42f0-818a-18fee9dcd064"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-4b4ae12248bdfba2",
+          "create_time": 1768260191.0,
+          "text": "Fake: what IDs should I preserve so I can trace these branches later?"
+        }
+      },
+      "4320a9bf-472b-42f0-818a-18fee9dcd064": {
+        "source_node_id": "4320a9bf-472b-42f0-818a-18fee9dcd064",
+        "parent": "5b075e2f-300f-4490-b4a4-357dc80941e8",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-2c2f4985bace7a5c",
+          "create_time": 1768260201.0,
+          "text": "Fake: keep node_id (tree structure), source_message_id (message identity), and parent/children. Add your own stable turn ids if you want."
+        }
+      },
+      "009e90c6-5c9a-43b9-b45f-7389482f0b32": {
+        "source_node_id": "009e90c6-5c9a-43b9-b45f-7389482f0b32",
+        "parent": "be9223ac-b9c8-43c8-9de9-a788e917eb75",
+        "children": [
+          "52e27bef-51be-4a16-90a7-807283022d56"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-87b61cf63ce45484",
+          "create_time": 1768260192.0,
+          "text": "Fake: does this change for projects versus regular chats?"
+        }
+      },
+      "52e27bef-51be-4a16-90a7-807283022d56": {
+        "source_node_id": "52e27bef-51be-4a16-90a7-807283022d56",
+        "parent": "009e90c6-5c9a-43b9-b45f-7389482f0b32",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-255b36b0f741c5ad",
+          "create_time": 1768260202.0,
+          "text": "Fake: the core tree structure is the same; projects are just metadata you may want to tag and filter on output."
+        }
+      },
+      "7b9cbf6a-93c3-45d2-98cb-4dab02f7572c": {
+        "source_node_id": "7b9cbf6a-93c3-45d2-98cb-4dab02f7572c",
+        "parent": "ef27785d-a4b8-4d98-a03c-f04dee30b754",
+        "children": [
+          "9599f954-4bee-4fb4-ac53-dbe85d7c8115"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-9ee9ab0dbb16fdf7",
+          "create_time": 1768260041.0,
+          "text": "Fake alternate: ignore the example; instead, explain why tree render output might get huge."
+        }
+      },
+      "9599f954-4bee-4fb4-ac53-dbe85d7c8115": {
+        "source_node_id": "9599f954-4bee-4fb4-ac53-dbe85d7c8115",
+        "parent": "7b9cbf6a-93c3-45d2-98cb-4dab02f7572c",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-10b91c87d6c1a7b5",
+          "create_time": 1768260051.0,
+          "text": "Fake: it gets huge because every regeneration creates another branch, so the number of nodes grows quickly, even if your day-to-day view felt linear."
+        }
+      },
+      "5c720be6-6200-4e75-bdef-96b68ea838f2": {
+        "source_node_id": "5c720be6-6200-4e75-bdef-96b68ea838f2",
+        "parent": "6eef9f80-d472-4201-a43d-fffe471d9ff0",
+        "children": [
+          "be066408-cdb4-42a9-a2e7-cb1e1ad25017"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-5c6b3f4d2d3e1a8d",
+          "create_time": 1768260011.0,
+          "text": "Fake answer B (regenerated): A tree is like folders in Windows: one folder can contain subfolders, which can contain more subfolders."
+        }
+      },
+      "be066408-cdb4-42a9-a2e7-cb1e1ad25017": {
+        "source_node_id": "be066408-cdb4-42a9-a2e7-cb1e1ad25017",
+        "parent": "5c720be6-6200-4e75-bdef-96b68ea838f2",
+        "children": [
+          "605cd3ac-5c5a-49f0-b148-a00e2d1d541a"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "msg-1b2b3c4d5e6f7788",
+          "create_time": 1768260021.0,
+          "text": "Fake: okay, compare that to a linked list. Why isn't this always a tree?"
+        }
+      },
+      "605cd3ac-5c5a-49f0-b148-a00e2d1d541a": {
+        "source_node_id": "605cd3ac-5c5a-49f0-b148-a00e2d1d541a",
+        "parent": "be066408-cdb4-42a9-a2e7-cb1e1ad25017",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "msg-e09bb34952f10181",
+          "create_time": 1768260031.0,
+          "text": "Fake: a linked list is mostly one path. A tree allows branching (many children). The export is a tree because edits/regenerations create branches."
+        }
+      }
     }
+  }
 ]

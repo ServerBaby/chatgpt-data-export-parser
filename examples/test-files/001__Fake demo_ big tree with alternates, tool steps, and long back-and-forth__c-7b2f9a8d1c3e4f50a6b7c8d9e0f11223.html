@@ -5,19 +5,19 @@
 <title>Fake demo: big tree with alternates, tool steps, and long back-and-forth</title>
 <style>
 :root {
-  /* Set default font to system fonts; looks fine on Windows. */
+  /* Default font stack. Looks reasonable on Windows and other OSes. */
   font-family: system-ui, Segoe UI, Arial, sans-serif;
 }
 
 body {
-  /* Basic page spacing and background. */
+  /* Page padding and neutral background colour. */
   margin: 0;
   padding: 16px;
-  background: #f6f7f9;
+  background: #f2f3f6;
 }
 
 header {
-  /* Space between header and content. */
+  /* Space between header and the scrollable tree area. */
   margin-bottom: 12px;
 }
 
@@ -28,28 +28,28 @@ h1 {
 }
 
 .subtitle {
-  /* Smaller, muted metadata line. */
+  /* Smaller metadata line under the title. */
   font-size: 13px;
-  color: #666;
+  color: #5f5f5f;
 }
 
 .wrap {
-  /* This is the scroll container.
-     The tree can be wider/taller than the viewport, so we allow scrolling. */
+  /* Scroll container for the tree.
+     The canvas may be larger than the browser viewport. */
   overflow: auto;
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid #d0d0d0;
   border-radius: 8px;
   padding: 12px;
 }
 
 .canvas {
-  /* This is the positioning context for absolutely positioned boxes and SVG. */
+  /* Positioning context for absolute children (SVG + boxes). */
   position: relative;
 }
 
 .wires {
-  /* Put the SVG at the top-left of the canvas, behind boxes. */
+  /* SVG connector layer. Positioned at (0,0) inside the canvas. */
   position: absolute;
   left: 0;
   top: 0;
@@ -57,37 +57,43 @@ h1 {
 }
 
 .box {
-  /* Each node is an absolutely-positioned "card". */
+  /* Each node is one absolutely-positioned card. */
   position: absolute;
-  z-index: 1; /* boxes above the SVG wires */
-  background: #fff;
-  border: 1px solid #bbb;
+  z-index: 1; /* boxes sit above the SVG */
+  background: #ffffff;
+  border: 2px solid #b0b0b0;
   border-radius: 10px;
   padding: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  box-sizing: border-box; /* so width/height include padding and border */
-  overflow: hidden;       /* keep internal layout clean */
+
+  /* Include padding/border inside the fixed width/height. */
+  box-sizing: border-box;
+
+  /* Prevent internal content from expanding the box size. */
+  overflow: hidden;
 }
 
 .idline {
-  /* Node id and message id lines. */
+  /* Node id and message id lines (small text). */
   font-size: 11px;
-  word-break: break-all; /* long ids should wrap instead of overflowing */
+
+  /* Long ids wrap instead of overflowing outside the box. */
+  word-break: break-all;
 }
 
 .label {
-  /* The bold "node"/"msg" label. */
+  /* Bold label text: "node" and "msg". */
   font-weight: 700;
-  color: #666;
+  color: #5f5f5f;
 }
 
 .muted {
   /* Slightly faded line for the message id. */
-  color: #777;
+  color: #6f6f6f;
 }
 
 .metaline {
-  /* Role + timestamp row. */
+  /* Row holding the role pill and timestamp. */
   display: flex;
   gap: 6px;
   margin: 6px 0;
@@ -99,37 +105,38 @@ h1 {
   font-size: 11px;
   padding: 2px 7px;
   border-radius: 999px;
-  border: 1px solid #ddd;
-  background: #f2f2f2;
+  border: 1px solid #d0d0d0;
+  background: #e5e5e5;
 }
 
 .meta {
   /* Timestamp text. */
   font-size: 11px;
-  color: #666;
+  color: #5f5f5f;
 }
 
 .text {
-  /* Main message preview area. */
+  /* Main message preview area inside a box. */
   font-size: 12.5px;
   line-height: 1.35;
   margin-top: 6px;
 
-  /* The box height is fixed, so this reserves space for id/meta lines above.
-     Anything longer scrolls inside the box. */
+  /* Reserve space for id/meta lines above.
+     The remaining vertical space is the text area. */
   height: calc(100% - 52px);
 
-  overflow: auto; /* text scrolls inside the fixed-height box */
+  /* Scroll inside the box for overflow text. */
+  overflow: auto;
   padding-right: 4px;
 }
 
 /* Role tinting.
-   These classes match: <div class="box role-{role}"> */
-.role-user { background: #eef6ff; }
-.role-assistant { background: #f3fff0; }
-.role-tool { background: #f7f0ff; }
-.role-system { background: #fff6e8; }
-.role-none { background: #f2f2f2; }
+   These classes match: <div class="box role-ROLE"> */
+.role-user { background: #ddeeff; }
+.role-assistant { background: #e6f6e1; }
+.role-tool { background: #ece3f6; }
+.role-system { background: #f6ebd6; }
+.role-none { background: #e5e5e5; }
 </style>
 </head>
 
@@ -142,11 +149,16 @@ h1 {
 <div class="wrap">
   
     <div class="canvas" style="width:1840px; height:3790px;">
-      <svg class="wires" width="1840" height="3790" viewBox="0 0 1840 3790" xmlns="http://www.w3.org/2000/svg"><line x1="920" y1="150" x2="920" y2="220" stroke="#999" stroke-width="2" /><line x1="920" y1="340" x2="790" y2="410" stroke="#999" stroke-width="2" /><line x1="920" y1="340" x2="1700" y2="410" stroke="#999" stroke-width="2" /><line x1="790" y1="530" x2="790" y2="600" stroke="#999" stroke-width="2" /><line x1="790" y1="720" x2="790" y2="790" stroke="#999" stroke-width="2" /><line x1="790" y1="910" x2="660" y2="980" stroke="#999" stroke-width="2" /><line x1="790" y1="910" x2="1440" y2="980" stroke="#999" stroke-width="2" /><line x1="660" y1="1100" x2="660" y2="1170" stroke="#999" stroke-width="2" /><line x1="660" y1="1290" x2="660" y2="1360" stroke="#999" stroke-width="2" /><line x1="660" y1="1480" x2="660" y2="1550" stroke="#999" stroke-width="2" /><line x1="660" y1="1670" x2="140" y2="1740" stroke="#999" stroke-width="2" /><line x1="660" y1="1670" x2="790" y2="1740" stroke="#999" stroke-width="2" /><line x1="140" y1="1860" x2="140" y2="1930" stroke="#999" stroke-width="2" /><line x1="140" y1="2050" x2="140" y2="2120" stroke="#999" stroke-width="2" /><line x1="140" y1="2240" x2="140" y2="2310" stroke="#999" stroke-width="2" /><line x1="140" y1="2430" x2="140" y2="2500" stroke="#999" stroke-width="2" /><line x1="790" y1="1860" x2="790" y2="1930" stroke="#999" stroke-width="2" /><line x1="790" y1="2050" x2="790" y2="2120" stroke="#999" stroke-width="2" /><line x1="790" y1="2240" x2="660" y2="2310" stroke="#999" stroke-width="2" /><line x1="790" y1="2240" x2="1180" y2="2310" stroke="#999" stroke-width="2" /><line x1="660" y1="2430" x2="660" y2="2500" stroke="#999" stroke-width="2" /><line x1="660" y1="2620" x2="660" y2="2690" stroke="#999" stroke-width="2" /><line x1="660" y1="2810" x2="660" y2="2880" stroke="#999" stroke-width="2" /><line x1="660" y1="3000" x2="660" y2="3070" stroke="#999" stroke-width="2" /><line x1="660" y1="3190" x2="660" y2="3260" stroke="#999" stroke-width="2" /><line x1="660" y1="3380" x2="400" y2="3450" stroke="#999" stroke-width="2" /><line x1="660" y1="3380" x2="660" y2="3450" stroke="#999" stroke-width="2" /><line x1="660" y1="3380" x2="920" y2="3450" stroke="#999" stroke-width="2" /><line x1="400" y1="3570" x2="400" y2="3640" stroke="#999" stroke-width="2" /><line x1="660" y1="3570" x2="660" y2="3640" stroke="#999" stroke-width="2" /><line x1="920" y1="3570" x2="920" y2="3640" stroke="#999" stroke-width="2" /><line x1="1440" y1="1100" x2="1440" y2="1170" stroke="#999" stroke-width="2" /><line x1="1700" y1="530" x2="1700" y2="600" stroke="#999" stroke-width="2" /><line x1="1700" y1="720" x2="1700" y2="790" stroke="#999" stroke-width="2" /></svg>
+      <svg class="wires" width="1840" height="3790" viewBox="0 0 1840 3790" xmlns="http://www.w3.org/2000/svg"><line x1="920" y1="150" x2="920" y2="220" stroke="#b0b0b0" stroke-width="2" /><line x1="920" y1="340" x2="790" y2="410" stroke="#b0b0b0" stroke-width="2" /><line x1="920" y1="340" x2="1700" y2="410" stroke="#b0b0b0" stroke-width="2" /><line x1="790" y1="530" x2="790" y2="600" stroke="#b0b0b0" stroke-width="2" /><line x1="790" y1="720" x2="790" y2="790" stroke="#b0b0b0" stroke-width="2" /><line x1="790" y1="910" x2="660" y2="980" stroke="#b0b0b0" stroke-width="2" /><line x1="790" y1="910" x2="1440" y2="980" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="1100" x2="660" y2="1170" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="1290" x2="660" y2="1360" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="1480" x2="660" y2="1550" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="1670" x2="140" y2="1740" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="1670" x2="790" y2="1740" stroke="#b0b0b0" stroke-width="2" /><line x1="140" y1="1860" x2="140" y2="1930" stroke="#b0b0b0" stroke-width="2" /><line x1="140" y1="2050" x2="140" y2="2120" stroke="#b0b0b0" stroke-width="2" /><line x1="140" y1="2240" x2="140" y2="2310" stroke="#b0b0b0" stroke-width="2" /><line x1="140" y1="2430" x2="140" y2="2500" stroke="#b0b0b0" stroke-width="2" /><line x1="790" y1="1860" x2="790" y2="1930" stroke="#b0b0b0" stroke-width="2" /><line x1="790" y1="2050" x2="790" y2="2120" stroke="#b0b0b0" stroke-width="2" /><line x1="790" y1="2240" x2="660" y2="2310" stroke="#b0b0b0" stroke-width="2" /><line x1="790" y1="2240" x2="1180" y2="2310" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="2430" x2="660" y2="2500" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="2620" x2="660" y2="2690" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="2810" x2="660" y2="2880" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="3000" x2="660" y2="3070" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="3190" x2="660" y2="3260" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="3380" x2="400" y2="3450" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="3380" x2="660" y2="3450" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="3380" x2="920" y2="3450" stroke="#b0b0b0" stroke-width="2" /><line x1="400" y1="3570" x2="400" y2="3640" stroke="#b0b0b0" stroke-width="2" /><line x1="660" y1="3570" x2="660" y2="3640" stroke="#b0b0b0" stroke-width="2" /><line x1="920" y1="3570" x2="920" y2="3640" stroke="#b0b0b0" stroke-width="2" /><line x1="1440" y1="1100" x2="1440" y2="1170" stroke="#b0b0b0" stroke-width="2" /><line x1="1700" y1="530" x2="1700" y2="600" stroke="#b0b0b0" stroke-width="2" /><line x1="1700" y1="720" x2="1700" y2="790" stroke="#b0b0b0" stroke-width="2" /></svg>
       
-            <div class="box role-none" style="left:30px; top:2500px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_012_user_deeper_tool_alt</div>
-              <div class="idline muted"><span class="label">msg</span> (none)</div>
+            <div class="box role-none"
+                 style="left:30px; top:2500px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_012_user_deeper_tool_alt
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                (none)
+              </div>
               <div class="metaline">
                 <span class="pill">none</span>
                 <span class="meta"></span>
@@ -154,9 +166,14 @@ h1 {
               <div class="text">[no message]</div>
             </div>
             
-            <div class="box role-assistant" style="left:30px; top:2310px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_011_asst_explain_traversal_alt</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-014-bbbb0002</div>
+            <div class="box role-assistant"
+                 style="left:30px; top:2310px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_011_asst_explain_traversal_alt
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-014-bbbb0002
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260121.0</span>
@@ -164,9 +181,14 @@ h1 {
               <div class="text">Fake traversal answer (alt): Think of exploring a building. Depth-first: go deep into one hallway. Breadth-first: check every room on this floor first.</div>
             </div>
             
-            <div class="box role-user" style="left:30px; top:2120px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_010_user_after_count_alt</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-012-aaaa0009</div>
+            <div class="box role-user"
+                 style="left:30px; top:2120px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_010_user_after_count_alt
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-012-aaaa0009
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260100.1</span>
@@ -174,9 +196,14 @@ h1 {
               <div class="text">Fake follow-up on tool branch: okay, now show traversal in plain language.</div>
             </div>
             
-            <div class="box role-tool" style="left:30px; top:1930px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_009_tool_result</div>
-              <div class="idline muted"><span class="label">msg</span> msg-t-010-toolresult</div>
+            <div class="box role-tool"
+                 style="left:30px; top:1930px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_009_tool_result
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-t-010-toolresult
+              </div>
               <div class="metaline">
                 <span class="pill">tool</span>
                 <span class="meta">t=1768260076.2</span>
@@ -184,9 +211,14 @@ h1 {
               <div class="text">[tool_result] 6</div>
             </div>
             
-            <div class="box role-tool" style="left:30px; top:1740px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_009_tool_call</div>
-              <div class="idline muted"><span class="label">msg</span> msg-t-009-toolcall</div>
+            <div class="box role-tool"
+                 style="left:30px; top:1740px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_009_tool_call
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-t-009-toolcall
+              </div>
               <div class="metaline">
                 <span class="pill">tool</span>
                 <span class="meta">t=1768260076.0</span>
@@ -194,9 +226,14 @@ h1 {
               <div class="text">[tool_call] python: count_nodes([&#x27;root&#x27;,&#x27;A&#x27;,&#x27;B&#x27;,&#x27;C&#x27;,&#x27;D&#x27;,&#x27;E&#x27;])</div>
             </div>
             
-            <div class="box role-assistant" style="left:290px; top:3640px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_019_asst_branch_pick</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-022-cccc0002</div>
+            <div class="box role-assistant"
+                 style="left:290px; top:3640px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_019_asst_branch_pick
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-022-cccc0002
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260200.0</span>
@@ -204,9 +241,14 @@ h1 {
               <div class="text">Fake: one approach is choose the longest continuing path. Another is keep every alternate as separate transcripts. Your tool can do either.</div>
             </div>
             
-            <div class="box role-user" style="left:290px; top:3450px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_018_user_specific</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-021-cccc0001</div>
+            <div class="box role-user"
+                 style="left:290px; top:3450px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_018_user_specific
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-021-cccc0001
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260190.0</span>
@@ -214,9 +256,14 @@ h1 {
               <div class="text">Fake: how do I choose a &#x27;main&#x27; branch for readable transcripts?</div>
             </div>
             
-            <div class="box role-assistant" style="left:550px; top:3640px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_019_asst_ids</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-024-cccc0004</div>
+            <div class="box role-assistant"
+                 style="left:550px; top:3640px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_019_asst_ids
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-024-cccc0004
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260201.0</span>
@@ -224,9 +271,14 @@ h1 {
               <div class="text">Fake: keep node_id (tree structure), source_message_id (message identity), and parent/children. Add your own stable turn ids if you want.</div>
             </div>
             
-            <div class="box role-user" style="left:550px; top:3450px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_018_user_specific_alt1</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-023-cccc0003</div>
+            <div class="box role-user"
+                 style="left:550px; top:3450px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_018_user_specific_alt1
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-023-cccc0003
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260191.0</span>
@@ -234,9 +286,14 @@ h1 {
               <div class="text">Fake: what IDs should I preserve so I can trace these branches later?</div>
             </div>
             
-            <div class="box role-assistant" style="left:810px; top:3640px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_019_asst_projects</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-026-cccc0006</div>
+            <div class="box role-assistant"
+                 style="left:810px; top:3640px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_019_asst_projects
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-026-cccc0006
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260202.0</span>
@@ -244,9 +301,14 @@ h1 {
               <div class="text">Fake: the core tree structure is the same; projects are just metadata you may want to tag and filter on output.</div>
             </div>
             
-            <div class="box role-user" style="left:810px; top:3450px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_018_user_specific_alt2</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-025-cccc0005</div>
+            <div class="box role-user"
+                 style="left:810px; top:3450px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_018_user_specific_alt2
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-025-cccc0005
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260192.0</span>
@@ -254,9 +316,14 @@ h1 {
               <div class="text">Fake: does this change for projects versus regular chats?</div>
             </div>
             
-            <div class="box role-assistant" style="left:550px; top:3260px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_017_asst_about_alternates</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-020-bbbb0008</div>
+            <div class="box role-assistant"
+                 style="left:550px; top:3260px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_017_asst_about_alternates
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-020-bbbb0008
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260180.0</span>
@@ -264,9 +331,14 @@ h1 {
               <div class="text">Fake: forks happen when you regenerate replies, edit prompts, or branch from earlier points. The export preserves the whole tree, not just one path.</div>
             </div>
             
-            <div class="box role-user" style="left:550px; top:3070px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_016_user_branching_question</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-019-bbbb0007</div>
+            <div class="box role-user"
+                 style="left:550px; top:3070px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_016_user_branching_question
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-019-bbbb0007
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260170.0</span>
@@ -274,9 +346,14 @@ h1 {
               <div class="text">Fake: why does ChatGPT export have forks? I thought conversations were linear.</div>
             </div>
             
-            <div class="box role-assistant" style="left:550px; top:2880px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_015_asst_breadth_demo</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-018-bbbb0006</div>
+            <div class="box role-assistant"
+                 style="left:550px; top:2880px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_015_asst_breadth_demo
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-018-bbbb0006
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260160.0</span>
@@ -284,9 +361,14 @@ h1 {
               <div class="text">Fake BFS order: root, A, B, C, D, E.</div>
             </div>
             
-            <div class="box role-user" style="left:550px; top:2690px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_014_user_breadth_demo</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-017-bbbb0005</div>
+            <div class="box role-user"
+                 style="left:550px; top:2690px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_014_user_breadth_demo
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-017-bbbb0005
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260150.0</span>
@@ -294,9 +376,14 @@ h1 {
               <div class="text">Fake: now breadth-first order.</div>
             </div>
             
-            <div class="box role-assistant" style="left:550px; top:2500px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_013_asst_depth_demo</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-016-bbbb0004</div>
+            <div class="box role-assistant"
+                 style="left:550px; top:2500px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_013_asst_depth_demo
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-016-bbbb0004
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260140.0</span>
@@ -304,9 +391,14 @@ h1 {
               <div class="text">Fake DFS order: root, A, B, D, C, E (assuming pre-order).</div>
             </div>
             
-            <div class="box role-user" style="left:550px; top:2310px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_012_user_deeper</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-015-bbbb0003</div>
+            <div class="box role-user"
+                 style="left:550px; top:2310px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_012_user_deeper
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-015-bbbb0003
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260130.0</span>
@@ -314,9 +406,14 @@ h1 {
               <div class="text">Fake: show me depth-first order on root-&gt;A, A-&gt;B,C, B-&gt;D, C-&gt;E.</div>
             </div>
             
-            <div class="box role-none" style="left:1070px; top:2310px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_012_user_deeper_alt</div>
-              <div class="idline muted"><span class="label">msg</span> (none)</div>
+            <div class="box role-none"
+                 style="left:1070px; top:2310px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_012_user_deeper_alt
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                (none)
+              </div>
               <div class="metaline">
                 <span class="pill">none</span>
                 <span class="meta"></span>
@@ -324,9 +421,14 @@ h1 {
               <div class="text">[no message]</div>
             </div>
             
-            <div class="box role-assistant" style="left:680px; top:2120px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_011_asst_explain_traversal</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-013-bbbb0001</div>
+            <div class="box role-assistant"
+                 style="left:680px; top:2120px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_011_asst_explain_traversal
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-013-bbbb0001
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260120.0</span>
@@ -334,9 +436,14 @@ h1 {
               <div class="text">Fake traversal answer: Traversal means the order you visit nodes. Depth-first goes down a branch before backing up. Breadth-first visits all siblings first.</div>
             </div>
             
-            <div class="box role-user" style="left:680px; top:1930px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_010_user_after_count</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-011-aaaa0008</div>
+            <div class="box role-user"
+                 style="left:680px; top:1930px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_010_user_after_count
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-011-aaaa0008
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260100.0</span>
@@ -344,9 +451,14 @@ h1 {
               <div class="text">Nice. Fake follow-up: what&#x27;s traversal and why do people talk about depth-first vs breadth-first?</div>
             </div>
             
-            <div class="box role-assistant" style="left:680px; top:1740px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_009_asst_direct_answer</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-009-aaaa0007</div>
+            <div class="box role-assistant"
+                 style="left:680px; top:1740px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_009_asst_direct_answer
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-009-aaaa0007
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260075.0</span>
@@ -354,9 +466,14 @@ h1 {
               <div class="text">Fake direct count: root, A, B, C, D, E = 6 nodes total.</div>
             </div>
             
-            <div class="box role-assistant" style="left:550px; top:1550px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_008_asst_tool_path</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-008-aaaa0006</div>
+            <div class="box role-assistant"
+                 style="left:550px; top:1550px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_008_asst_tool_path
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-008-aaaa0006
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260070.0</span>
@@ -364,9 +481,14 @@ h1 {
               <div class="text">Fake assistant: I&#x27;ll answer directly, but I&#x27;ll also show a tool-style step so we can test tool nodes.</div>
             </div>
             
-            <div class="box role-user" style="left:550px; top:1360px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_007_user_a3</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-007-aaaa0005</div>
+            <div class="box role-user"
+                 style="left:550px; top:1360px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_007_user_a3
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-007-aaaa0005
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260060.0</span>
@@ -374,9 +496,14 @@ h1 {
               <div class="text">Fake follow-up: can you calculate how many nodes are in this example if I add D under B and E under C?</div>
             </div>
             
-            <div class="box role-assistant" style="left:550px; top:1170px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_006_asst_a2</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-006-aaaa0004</div>
+            <div class="box role-assistant"
+                 style="left:550px; top:1170px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_006_asst_a2
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-006-aaaa0004
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260050.0</span>
@@ -384,9 +511,14 @@ h1 {
               <div class="text">Fake example: root -&gt; A. Then A -&gt; B and C. That means A has two children, B and C.</div>
             </div>
             
-            <div class="box role-user" style="left:550px; top:980px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_005_user_a2</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-005-aaaa0003</div>
+            <div class="box role-user"
+                 style="left:550px; top:980px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_005_user_a2
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-005-aaaa0003
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260040.0</span>
@@ -394,9 +526,14 @@ h1 {
               <div class="text">Fake follow-up: show a small example with root, one child, then two children.</div>
             </div>
             
-            <div class="box role-assistant" style="left:1330px; top:1170px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_006_asst_a2_alt</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-006b-alt-0002</div>
+            <div class="box role-assistant"
+                 style="left:1330px; top:1170px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_006_asst_a2_alt
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-006b-alt-0002
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260051.0</span>
@@ -404,9 +541,14 @@ h1 {
               <div class="text">Fake: it gets huge because every regeneration creates another branch, so the number of nodes grows quickly, even if your day-to-day view felt linear.</div>
             </div>
             
-            <div class="box role-user" style="left:1330px; top:980px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_005_user_a2_alt</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-005b-alt-0001</div>
+            <div class="box role-user"
+                 style="left:1330px; top:980px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_005_user_a2_alt
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-005b-alt-0001
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260041.0</span>
@@ -414,9 +556,14 @@ h1 {
               <div class="text">Fake alternate: ignore the example; instead, explain why tree render output might get huge.</div>
             </div>
             
-            <div class="box role-assistant" style="left:680px; top:790px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_004_asst_a1</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-004-aaaa0002</div>
+            <div class="box role-assistant"
+                 style="left:680px; top:790px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_004_asst_a1
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-004-aaaa0002
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260030.0</span>
@@ -424,9 +571,14 @@ h1 {
               <div class="text">Fake answer: A node is the position in the tree. A message id is the id for the text content. Some nodes have no message (structure only).</div>
             </div>
             
-            <div class="box role-user" style="left:680px; top:600px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_003_user_a1</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-003-aaaa0001</div>
+            <div class="box role-user"
+                 style="left:680px; top:600px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_003_user_a1
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-003-aaaa0001
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260020.0</span>
@@ -434,9 +586,14 @@ h1 {
               <div class="text">Okay. Now explain what a node is versus a message id.</div>
             </div>
             
-            <div class="box role-assistant" style="left:680px; top:410px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_002_asst_a</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-002-11112222</div>
+            <div class="box role-assistant"
+                 style="left:680px; top:410px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_002_asst_a
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-002-11112222
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260010.0</span>
@@ -444,9 +601,14 @@ h1 {
               <div class="text">Fake answer A: A tree is a set of connected items where one item is the &#x27;parent&#x27; and it can have &#x27;children&#x27;. It branches like a family tree.</div>
             </div>
             
-            <div class="box role-assistant" style="left:1590px; top:790px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_004_asst_b1</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-004b-bbbb2222</div>
+            <div class="box role-assistant"
+                 style="left:1590px; top:790px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_004_asst_b1
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-004b-bbbb2222
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260031.0</span>
@@ -454,9 +616,14 @@ h1 {
               <div class="text">Fake: a linked list is mostly one path. A tree allows branching (many children). The export is a tree because edits/regenerations create branches.</div>
             </div>
             
-            <div class="box role-user" style="left:1590px; top:600px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_003_user_b1</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-003b-bbbb1111</div>
+            <div class="box role-user"
+                 style="left:1590px; top:600px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_003_user_b1
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-003b-bbbb1111
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260021.0</span>
@@ -464,9 +631,14 @@ h1 {
               <div class="text">Fake: okay, compare that to a linked list. Why isn&#x27;t this always a tree?</div>
             </div>
             
-            <div class="box role-assistant" style="left:1590px; top:410px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_002_asst_b</div>
-              <div class="idline muted"><span class="label">msg</span> msg-a-002b-33334444</div>
+            <div class="box role-assistant"
+                 style="left:1590px; top:410px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_002_asst_b
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-a-002b-33334444
+              </div>
               <div class="metaline">
                 <span class="pill">assistant</span>
                 <span class="meta">t=1768260011.0</span>
@@ -474,9 +646,14 @@ h1 {
               <div class="text">Fake answer B (regenerated): A tree is like folders in Windows: one folder can contain subfolders, which can contain more subfolders.</div>
             </div>
             
-            <div class="box role-user" style="left:810px; top:220px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> n_001_user</div>
-              <div class="idline muted"><span class="label">msg</span> msg-u-001-aabbccdd</div>
+            <div class="box role-user"
+                 style="left:810px; top:220px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> n_001_user
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                msg-u-001-aabbccdd
+              </div>
               <div class="metaline">
                 <span class="pill">user</span>
                 <span class="meta">t=1768260005.0</span>
@@ -484,9 +661,14 @@ h1 {
               <div class="text">This is a fake question: explain what a &#x27;tree&#x27; data structure is, like I&#x27;m tired.</div>
             </div>
             
-            <div class="box role-none" style="left:810px; top:30px; width:220px; height:120px;">
-              <div class="idline"><span class="label">node</span> root</div>
-              <div class="idline muted"><span class="label">msg</span> (none)</div>
+            <div class="box role-none"
+                 style="left:810px; top:30px; width:220px;
+                        height:120px;">
+              <div class="idline"><span class="label">node</span> root
+              </div>
+              <div class="idline muted"><span class="label">msg</span>
+                (none)
+              </div>
               <div class="metaline">
                 <span class="pill">none</span>
                 <span class="meta"></span>
