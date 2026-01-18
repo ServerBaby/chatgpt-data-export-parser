@@ -7,3 +7,9 @@ metadata such as IDs, paths, and normalization.
 
 Processors are format-agnostic and should not contain rendering logic.
 """
+
+# Re-export the public processor functions for convenience.
+
+from .conversation import parse_conversation
+
+__all__ = ["parse_conversation"]
