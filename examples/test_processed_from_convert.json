@@ -1,0 +1,511 @@
+[
+  {
+    "schema": "processed_tree_v1",
+    "conversation_id": "fake-convo-001",
+    "title": "FAKE: Basic test conversation (obviously not real)",
+    "create_time": 1768200000.0,
+    "update_time": 1768200300.0,
+    "project": null,
+    "root_node_id": "N0000-T0000-B0000-ARooT",
+    "nodes": {
+      "N0000-T0000-B0000-ARooT": {
+        "source_node_id": "root",
+        "parent": null,
+        "children": [
+          "N0001-T0001-B0000-A1of1"
+        ],
+        "message": null,
+        "derived": {
+          "N": "N0000",
+          "T": "T0000",
+          "B": "B0000",
+          "A": "ARooT",
+          "timestamp_human": "12 Jan 2026 06:40:00",
+          "is_main_path": true
+        }
+      },
+      "N0001-T0001-B0000-A1of1": {
+        "source_node_id": "u1",
+        "parent": "N0000-T0000-B0000-ARooT",
+        "children": [
+          "N0002-T0002-B0000-A1of1"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "m-u1",
+          "create_time": 1768200001.0,
+          "text": "This is a test question. Are you an AI?"
+        },
+        "derived": {
+          "N": "N0001",
+          "T": "T0001",
+          "B": "B0000",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 06:40:01",
+          "is_main_path": true
+        }
+      },
+      "N0002-T0002-B0000-A1of1": {
+        "source_node_id": "a1",
+        "parent": "N0001-T0001-B0000-A1of1",
+        "children": [
+          "N0003-T0003-B0000-A1of1"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a1",
+          "create_time": 1768200004.0,
+          "text": "Yes — I’m an AI assistant. This conversation is part of a fake test export designed for parsing and rendering."
+        },
+        "derived": {
+          "N": "N0002",
+          "T": "T0002",
+          "B": "B0000",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 06:40:04",
+          "is_main_path": true
+        }
+      },
+      "N0003-T0003-B0000-A1of1": {
+        "source_node_id": "u2",
+        "parent": "N0002-T0002-B0000-A1of1",
+        "children": [
+          "N0004-T0004-B0001-A1of2",
+          "N0007-T0005-B0001-A2of2"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "m-u2",
+          "create_time": 1768200010.0,
+          "text": "This is another test question. Please answer in one sentence, and then pretend I regenerated your answer."
+        },
+        "derived": {
+          "N": "N0003",
+          "T": "T0003",
+          "B": "B0000",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 06:40:10",
+          "is_main_path": true
+        }
+      },
+      "N0004-T0004-B0001-A1of2": {
+        "source_node_id": "a2_main",
+        "parent": "N0003-T0003-B0000-A1of1",
+        "children": [
+          "N0005-T0006-B0001-A1of1"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a2-main",
+          "create_time": 1768200016.0,
+          "text": "One-sentence answer: this is a deliberately fake conversation used to test exporting and rendering."
+        },
+        "derived": {
+          "N": "N0004",
+          "T": "T0004",
+          "B": "B0001",
+          "A": "A1of2",
+          "timestamp_human": "12 Jan 2026 06:40:16",
+          "is_main_path": true
+        }
+      },
+      "N0007-T0005-B0001-A2of2": {
+        "source_node_id": "a2_alt",
+        "parent": "N0003-T0003-B0000-A1of1",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a2-alt",
+          "create_time": 1768200017.0,
+          "text": "Alternate answer (fake regen): yes, this is test data intended to be obviously artificial while still readable."
+        },
+        "derived": {
+          "N": "N0007",
+          "T": "T0005",
+          "B": "B0001",
+          "A": "A2of2",
+          "timestamp_human": "12 Jan 2026 06:40:17",
+          "is_main_path": false
+        }
+      },
+      "N0005-T0006-B0001-A1of1": {
+        "source_node_id": "u3",
+        "parent": "N0004-T0004-B0001-A1of2",
+        "children": [
+          "N0006-T0007-B0001-A1of1"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "m-u3",
+          "create_time": 1768200025.0,
+          "text": "Final fake prompt: list three output formats this tool might generate."
+        },
+        "derived": {
+          "N": "N0005",
+          "T": "T0006",
+          "B": "B0001",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 06:40:25",
+          "is_main_path": true
+        }
+      },
+      "N0006-T0007-B0001-A1of1": {
+        "source_node_id": "a3",
+        "parent": "N0005-T0006-B0001-A1of1",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a3",
+          "create_time": 1768200032.0,
+          "text": "Markdown, HTML, and plain text."
+        },
+        "derived": {
+          "N": "N0006",
+          "T": "T0007",
+          "B": "B0001",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 06:40:32",
+          "is_main_path": true
+        }
+      }
+    },
+    "derived": {
+      "P": "P0000",
+      "C": "C0001",
+      "PC": "P0000-C0001"
+    }
+  },
+  {
+    "schema": "processed_tree_v1",
+    "conversation_id": "fake-convo-003",
+    "title": "FAKE: Non-text placeholder test (obviously not real)",
+    "create_time": 1768220000.0,
+    "update_time": 1768220200.0,
+    "project": null,
+    "root_node_id": "N0000-T0000-B0000-ARooT",
+    "nodes": {
+      "N0000-T0000-B0000-ARooT": {
+        "source_node_id": "root",
+        "parent": null,
+        "children": [
+          "N0001-T0001-B0000-A1of1"
+        ],
+        "message": null,
+        "derived": {
+          "N": "N0000",
+          "T": "T0000",
+          "B": "B0000",
+          "A": "ARooT",
+          "timestamp_human": "12 Jan 2026 12:13:20",
+          "is_main_path": true
+        }
+      },
+      "N0001-T0001-B0000-A1of1": {
+        "source_node_id": "u1",
+        "parent": "N0000-T0000-B0000-ARooT",
+        "children": [
+          "N0002-T0002-B0000-A1of1"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "m-u1",
+          "create_time": 1768220002.0,
+          "text": "Fake question: insert one non-text message after your reply, so we can test placeholders."
+        },
+        "derived": {
+          "N": "N0001",
+          "T": "T0001",
+          "B": "B0000",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 12:13:22",
+          "is_main_path": true
+        }
+      },
+      "N0002-T0002-B0000-A1of1": {
+        "source_node_id": "a1",
+        "parent": "N0001-T0001-B0000-A1of1",
+        "children": [
+          "N0003-T0003-B0001-A1of2",
+          "N0004-T0004-B0001-A2of2"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a1",
+          "create_time": 1768220010.0,
+          "text": "Acknowledged. The next node is deliberately non-text to simulate tool output or attachments in a real export."
+        },
+        "derived": {
+          "N": "N0002",
+          "T": "T0002",
+          "B": "B0000",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 12:13:30",
+          "is_main_path": true
+        }
+      },
+      "N0003-T0003-B0001-A1of2": {
+        "source_node_id": "tool1",
+        "parent": "N0002-T0002-B0000-A1of1",
+        "children": [],
+        "message": {
+          "role": "tool",
+          "source_message_id": "m-tool1",
+          "create_time": 1768220011.0,
+          "text": "[tool_result]"
+        },
+        "derived": {
+          "N": "N0003",
+          "T": "T0003",
+          "B": "B0001",
+          "A": "A1of2",
+          "timestamp_human": "12 Jan 2026 12:13:31",
+          "is_main_path": false
+        }
+      },
+      "N0004-T0004-B0001-A2of2": {
+        "source_node_id": "u2",
+        "parent": "N0002-T0002-B0000-A1of1",
+        "children": [
+          "N0005-T0005-B0001-A1of1"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "m-u2",
+          "create_time": 1768220018.0,
+          "text": "Final fake follow-up: would a placeholder like [tool_result] be acceptable in a transcript?"
+        },
+        "derived": {
+          "N": "N0004",
+          "T": "T0004",
+          "B": "B0001",
+          "A": "A2of2",
+          "timestamp_human": "12 Jan 2026 12:13:38",
+          "is_main_path": true
+        }
+      },
+      "N0005-T0005-B0001-A1of1": {
+        "source_node_id": "a2",
+        "parent": "N0004-T0004-B0001-A2of2",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a2",
+          "create_time": 1768220026.0,
+          "text": "Yes — a clear placeholder is acceptable, as long as it makes the transcript readable and signals that the original content was non-text."
+        },
+        "derived": {
+          "N": "N0005",
+          "T": "T0005",
+          "B": "B0001",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 12:13:46",
+          "is_main_path": true
+        }
+      }
+    },
+    "derived": {
+      "P": "P0000",
+      "C": "C0002",
+      "PC": "P0000-C0002"
+    }
+  },
+  {
+    "schema": "processed_tree_v1",
+    "conversation_id": "fake-convo-002",
+    "title": "FAKE: Project chat (obviously not real)",
+    "create_time": 1768210000.0,
+    "update_time": 1768210600.0,
+    "project": {
+      "id": "fake-project-001",
+      "name": "FAKE PROJECT: Demo Project"
+    },
+    "root_node_id": "N0000-T0000-B0000-ARooT",
+    "nodes": {
+      "N0000-T0000-B0000-ARooT": {
+        "source_node_id": "root",
+        "parent": null,
+        "children": [
+          "N0001-T0001-B0000-A1of1"
+        ],
+        "message": null,
+        "derived": {
+          "N": "N0000",
+          "T": "T0000",
+          "B": "B0000",
+          "A": "ARooT",
+          "timestamp_human": "12 Jan 2026 09:26:40",
+          "is_main_path": true
+        }
+      },
+      "N0001-T0001-B0000-A1of1": {
+        "source_node_id": "u1",
+        "parent": "N0000-T0000-B0000-ARooT",
+        "children": [
+          "N0002-T0002-B0000-A1of1"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "m-u1",
+          "create_time": 1768210002.0,
+          "text": "This is a fake Project conversation. Please confirm you see the Project metadata."
+        },
+        "derived": {
+          "N": "N0001",
+          "T": "T0001",
+          "B": "B0000",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 09:26:42",
+          "is_main_path": true
+        }
+      },
+      "N0002-T0002-B0000-A1of1": {
+        "source_node_id": "a1",
+        "parent": "N0001-T0001-B0000-A1of1",
+        "children": [
+          "N0003-T0003-B0000-A1of1"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a1",
+          "create_time": 1768210008.0,
+          "text": "Confirmed: this fake export includes Project metadata fields (project id and name) to test tagging."
+        },
+        "derived": {
+          "N": "N0002",
+          "T": "T0002",
+          "B": "B0000",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 09:26:48",
+          "is_main_path": true
+        }
+      },
+      "N0003-T0003-B0000-A1of1": {
+        "source_node_id": "u2",
+        "parent": "N0002-T0002-B0000-A1of1",
+        "children": [
+          "N0004-T0004-B0001-A1of3",
+          "N0007-T0005-B0001-A2of3",
+          "N0008-T0006-B0001-A3of3"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "m-u2",
+          "create_time": 1768210015.0,
+          "text": "Fake question: give a short, professional summary of what this parser does. Include alternates to simulate multiple answers."
+        },
+        "derived": {
+          "N": "N0003",
+          "T": "T0003",
+          "B": "B0000",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 09:26:55",
+          "is_main_path": true
+        }
+      },
+      "N0004-T0004-B0001-A1of3": {
+        "source_node_id": "a2_main",
+        "parent": "N0003-T0003-B0000-A1of1",
+        "children": [
+          "N0005-T0007-B0001-A1of1"
+        ],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a2-main",
+          "create_time": 1768210022.0,
+          "text": "This parser reads the official ChatGPT data export and renders each conversation into human-readable transcripts while preserving message roles and metadata."
+        },
+        "derived": {
+          "N": "N0004",
+          "T": "T0004",
+          "B": "B0001",
+          "A": "A1of3",
+          "timestamp_human": "12 Jan 2026 09:27:02",
+          "is_main_path": true
+        }
+      },
+      "N0007-T0005-B0001-A2of3": {
+        "source_node_id": "a2_alt_1",
+        "parent": "N0003-T0003-B0000-A1of1",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a2-alt-1",
+          "create_time": 1768210023.0,
+          "text": "Alternate answer (fake regen): it converts ChatGPT export JSON into readable documents and keeps things like timestamps and roles when available."
+        },
+        "derived": {
+          "N": "N0007",
+          "T": "T0005",
+          "B": "B0001",
+          "A": "A2of3",
+          "timestamp_human": "12 Jan 2026 09:27:03",
+          "is_main_path": false
+        }
+      },
+      "N0008-T0006-B0001-A3of3": {
+        "source_node_id": "a2_alt_2",
+        "parent": "N0003-T0003-B0000-A1of1",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a2-alt-2",
+          "create_time": 1768210024.0,
+          "text": "Alternate answer (fake regen): it is a resume-friendly example project demonstrating parsing, data modelling, and multi-format rendering."
+        },
+        "derived": {
+          "N": "N0008",
+          "T": "T0006",
+          "B": "B0001",
+          "A": "A3of3",
+          "timestamp_human": "12 Jan 2026 09:27:04",
+          "is_main_path": false
+        }
+      },
+      "N0005-T0007-B0001-A1of1": {
+        "source_node_id": "u3",
+        "parent": "N0004-T0004-B0001-A1of3",
+        "children": [
+          "N0006-T0008-B0001-A1of1"
+        ],
+        "message": {
+          "role": "user",
+          "source_message_id": "m-u3",
+          "create_time": 1768210030.0,
+          "text": "Fake follow-up: list two risks this tool avoids by design (keep it professional)."
+        },
+        "derived": {
+          "N": "N0005",
+          "T": "T0007",
+          "B": "B0001",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 09:27:10",
+          "is_main_path": true
+        }
+      },
+      "N0006-T0008-B0001-A1of1": {
+        "source_node_id": "a3",
+        "parent": "N0005-T0007-B0001-A1of1",
+        "children": [],
+        "message": {
+          "role": "assistant",
+          "source_message_id": "m-a3",
+          "create_time": 1768210038.0,
+          "text": "It avoids committing private exports to Git, and it avoids silently dropping conversation content by preserving alternates and emitting audit-style output."
+        },
+        "derived": {
+          "N": "N0006",
+          "T": "T0008",
+          "B": "B0001",
+          "A": "A1of1",
+          "timestamp_human": "12 Jan 2026 09:27:18",
+          "is_main_path": true
+        }
+      }
+    },
+    "derived": {
+      "P": "P0001",
+      "C": "C0001",
+      "PC": "P0001-C0001"
+    }
+  }
+]

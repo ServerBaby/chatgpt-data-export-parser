@@ -1,385 +1,223 @@
 """
 convert.py
 
-Stage 1 goals:
-- Load a ChatGPT export-like JSON file (e.g. examples/conversations_fake.json)
-- Build a simple internal Conversation model (using model.py)
-- Preserve:
-  - user vs assistant role
-  - titles/timestamps (when available)
-  - alternates (regen answers) as alternates
-  - project metadata (if present)
-- Print a readable summary to the terminal
+Processing pipeline entry point.
 
-This is intentionally minimal. Later stages will:
-- split parsing into parser.py
-- add renderers/ for txt/md/html/docx/pdf
+Goal:
+- Load a ChatGPT export-like JSON file (conversations.json)
+- For each conversation:
+    - normalize it (shape cleanup + deterministic child order)
+    - derive ids (NTBA mark ids, rewrite nodes dict keys + parent/children)
+    - derive paths (mark main path longest + tie-break latest create_time)
+- Assign conversation-level derived identifiers:
+    - P#### = project bucket number (P0000 for non-project; projects oldest first)
+    - C#### = conversation number within that project bucket (oldest first)
+    - PC    = "P####-C####"
+- Write processed_tree_v1 JSON ready for renderers.
+
+This is intentionally defensive and stable.
 """
 
-# argparse is the standard library tool for command-line arguments.
+from __future__ import annotations
+
 import argparse
-
-# json lets Python load JSON files.
 import json
-
-# Path is a nice way to handle file paths.
 from pathlib import Path
-
-# typing helps describe expected shapes (for clarity, not required to run).
 from typing import Any, Dict, List, Optional, Tuple
 
-# Import internal structures from model.py
-from model import Conversation, Message, Turn
+from .normalize import normalize_conversation
+from .derive_ids import apply_mark_ids
+from .derive_paths import mark_main_path
 
 
-def extract_text_from_content(content: Optional[Dict[str, Any]]) -> str:
-    """
-    Converts a message 'content' object into a readable string.
-
-    The export usually stores text like:
-      {"content_type": "text", "parts": ["hello", "world"]}
-
-    For non-text content, this function returns a clear placeholder so the tool
-    never crashes and the transcript remains readable.
-    """
-    # If content is missing entirely, return a placeholder.
-    if content is None:
-        return "[no content]"
-
-    # Get the content type, if it exists.
-    content_type = content.get("content_type")
-
-    # If it's plain text, combine the "parts" list into a readable string.
-    if content_type == "text":
-        parts = content.get("parts", [])
-        # Join list items with newlines to preserve multi-paragraph messages.
-        return "\n".join(str(p) for p in parts).strip()
-
-    # If it's something else (tool result, attachments, etc.), return placeholder.
-    return f"[{content_type or 'unknown_content'}]"
-
-
-def build_parent_children_index(mapping: Dict[str, Any]) -> Tuple[Dict[str, str], Dict[str, List[str]]]:
-    """
-    Builds two helpful lookup tables from the export mapping tree:
-
-    parent_of[child_id] = parent_id
-    children_of[parent_id] = [child_id, child_id, ...]
-
-    This makes it easier to navigate the tree.
-    """
-    parent_of: Dict[str, str] = {}
-    children_of: Dict[str, List[str]] = {}
-
-    # Loop through each node in the mapping dict.
-    for node_id, node in mapping.items():
-        # Parent can be None at root.
-        parent = node.get("parent")
-
-        # Store parent if it exists.
-        if parent is not None:
-            parent_of[node_id] = parent
-
-        # Children is usually a list.
-        kids = node.get("children", []) or []
-        children_of[node_id] = list(kids)
-
-    return parent_of, children_of
-
-
-def find_root_id(mapping: Dict[str, Any]) -> str:
-    """
-    Finds the root node id.
-
-    Many exports include a literal "root" key, but this function also handles
-    cases where the root is a node with no parent.
-    """
-    # Most common case.
-    if "root" in mapping:
-        return "root"
-
-    # Otherwise, find any node with parent == None.
-    for node_id, node in mapping.items():
-        if node.get("parent") is None:
-            return node_id
-
-    # If everything fails, just pick something (prevents crash).
-    # This is defensive coding for weird exports.
-    return next(iter(mapping.keys()))
-
-
-def pick_main_child(children: List[str], mapping: Dict[str, Any]) -> Optional[str]:
-    """
-    Picks one child node to be the "main path" continuation.
-
-    In real exports, ordering can be messy. For stage 1, this picks the child
-    with the earliest message timestamp, which is usually the intended main path.
-
-    Returns:
-      node_id of the chosen child, or None if no children exist.
-    """
-    if not children:
+def _safe_float(x: Any) -> Optional[float]:
+    try:
+        if x is None:
+            return None
+        return float(x)
+    except Exception:
         return None
 
-    # Create a list of (timestamp, child_id).
-    ranked: List[Tuple[float, str]] = []
 
-    for child_id in children:
-        node = mapping.get(child_id, {})
-        msg = node.get("message")
-        # If message exists, use its create_time; else use a large value.
-        ts = 9e18
-        if msg and msg.get("create_time") is not None:
-            ts = float(msg["create_time"])
-        ranked.append((ts, child_id))
-
-    # Sort so the earliest timestamp comes first.
-    ranked.sort(key=lambda x: x[0])
-
-    # Return the child_id with earliest timestamp.
-    return ranked[0][1]
-
-
-def is_user_message(node: Dict[str, Any]) -> bool:
-    """Returns True if the node contains a user-authored message."""
-    msg = node.get("message") or {}
-    author = msg.get("author") or {}
-    return author.get("role") == "user"
-
-
-def is_assistant_message(node: Dict[str, Any]) -> bool:
-    """Returns True if the node contains an assistant-authored message."""
-    msg = node.get("message") or {}
-    author = msg.get("author") or {}
-    return author.get("role") == "assistant"
-
-
-def node_to_message(node: Dict[str, Any]) -> Message:
+def _project_key_from_raw(raw_convo: Dict[str, Any]) -> Optional[str]:
     """
-    Converts a raw mapping node into a Message dataclass instance.
+    Default rule:
+      - Use project.id if present
+      - Else use project.name
+      - Else treat as non-project (return None)
     """
-    msg = node.get("message") or {}
-    author = msg.get("author") or {}
-    role = str(author.get("role", "unknown"))
+    proj = raw_convo.get("project")
+    if not isinstance(proj, dict):
+        return None
 
-    # Pull raw content dict and convert it into text/placeholder.
-    content = msg.get("content")
-    text = extract_text_from_content(content)
+    pid = proj.get("id")
+    if isinstance(pid, str) and pid.strip():
+        return f"id:{pid.strip()}"
 
-    # Get timestamp if present.
-    ts = msg.get("create_time")
-    timestamp = float(ts) if ts is not None else None
+    pname = proj.get("name")
+    if isinstance(pname, str) and pname.strip():
+        return f"name:{pname.strip()}"
 
-    return Message(role=role, text=text, timestamp=timestamp)
+    return None
 
 
-def parse_conversation(raw: Dict[str, Any]) -> Conversation:
+def _convo_time_from_raw(raw_convo: Dict[str, Any]) -> Optional[float]:
     """
-    Parses one raw conversation object from the JSON export into our model.
-
-    Strategy (simple stage 1):
-    - Use the mapping tree
-    - Walk along a main path
-    - Every time we hit a user message, we create a Turn
-    - We attach assistant responses as:
-        - main assistant (chosen by timestamp)
-        - alternates (other assistant siblings)
+    Use conversation create_time for ordering if available.
+    Missing/invalid create_time is treated as "unknown" and sorted last.
     """
-    # Basic metadata fields (with safe defaults).
-    convo_id = str(raw.get("id", "unknown-id"))
-    title = str(raw.get("title") or "Untitled (no title)")
-    create_time = raw.get("create_time")
-    update_time = raw.get("update_time")
-
-    # Optional project metadata (may not exist).
-    project = raw.get("project")
-
-    # The "mapping" is the tree of messages.
-    mapping: Dict[str, Any] = raw.get("mapping") or {}
-
-    # Create the Conversation object we will fill.
-    convo = Conversation(
-        id=convo_id,
-        title=title,
-        create_time=float(create_time) if create_time is not None else None,
-        update_time=float(update_time) if update_time is not None else None,
-        project=project if isinstance(project, dict) else None,
-        turns=[],
-    )
-
-    # If mapping is empty, return the conversation as-is.
-    if not mapping:
-        return convo
-
-    # Find the root node id.
-    root_id = find_root_id(mapping)
-
-    # Current node starts at root.
-    current_id: Optional[str] = root_id
-
-    # Walk the tree along a main path until we run out.
-    while current_id is not None:
-        current_node = mapping.get(current_id, {})
-
-        # Look at children of current node.
-        children = current_node.get("children", []) or []
-
-        # Choose next step along the main path.
-        next_id = pick_main_child(children, mapping)
-
-        # If there is no next node, end walk.
-        if next_id is None:
-            break
-
-        next_node = mapping.get(next_id, {})
-
-        # If the next node is a user message, start a new Turn.
-        if is_user_message(next_node):
-            user_msg = node_to_message(next_node)
-
-            # The user node may have children that are assistant responses.
-            user_children = next_node.get("children", []) or []
-
-            # Collect assistant child nodes.
-            assistant_child_ids = [
-                cid for cid in user_children if is_assistant_message(mapping.get(cid, {}))
-            ]
-
-            # Choose one assistant response as the "main" response.
-            main_assistant_id = pick_main_child(assistant_child_ids, mapping)
-
-            main_assistant_msg: Optional[Message] = None
-            alternates: List[Message] = []
-
-            if main_assistant_id is not None:
-                # Convert the chosen assistant node into a Message.
-                main_assistant_msg = node_to_message(mapping.get(main_assistant_id, {}))
-
-                # Any other assistant sibling becomes an alternate response.
-                for cid in assistant_child_ids:
-                    if cid != main_assistant_id:
-                        alternates.append(node_to_message(mapping.get(cid, {})))
-
-            # Create and store the Turn in the Conversation.
-            convo.turns.append(
-                Turn(user=user_msg, assistant=main_assistant_msg, alternates=alternates)
-            )
-
-            # Continue walking from the main assistant if it exists,
-            # otherwise continue walking from the user message node.
-            current_id = main_assistant_id if main_assistant_id is not None else next_id
-            continue
-
-        # If it wasn't a user message, just keep walking along the chosen path.
-        current_id = next_id
-
-    return convo
+    return _safe_float(raw_convo.get("create_time"))
 
 
-def main() -> None:
+def _order_key_time_then_id(raw_convo: Dict[str, Any]) -> Tuple[int, float, str]:
     """
-    Main entry point for the script.
-
-    This function:
-    - reads command-line arguments
-    - loads JSON
-    - parses each conversation into model objects
-    - prints a readable summary
+    Oldest-first ordering with stable tie-break.
+    - Known create_time first (0), unknown last (1)
+    - then by create_time
+    - then by conversation_id string
     """
-    # Create a CLI argument parser.
-    parser = argparse.ArgumentParser(
-        description=(
-            "Parse a ChatGPT export JSON file into an internal model and print "
-            "a readable summary (stage 1)."
-        )
-    )
+    ct = _convo_time_from_raw(raw_convo)
+    cid = raw_convo.get("conversation_id")
+    cid_s = cid if isinstance(cid, str) else ""
+    if ct is None:
+        return (1, 9e18, cid_s)
+    return (0, ct, cid_s)
 
-    # Add an input file argument.
-    parser.add_argument(
-        "input",
-        nargs="?",
-        default="examples/conversations_fake.json",
-        help="Path to conversations.json (defaults to examples/conversations_fake.json)",
-    )
 
-    # Parse arguments from the command line.
-    args = parser.parse_args()
-
-    # Convert input argument into a Path object.
-    input_path = Path(args.input)
-
-    # Fail early if the file doesn't exist.
-    if not input_path.exists():
-        raise SystemExit(f"Input file not found: {input_path}")
-
-    # Read file text.
+def convert_file(input_path: Path) -> List[Dict[str, Any]]:
+    """
+    Converts a raw export JSON file into a list of processed_tree_v1 conversations.
+    Also assigns conversation-level derived identifiers (P#### / C#### / PC).
+    """
     raw_text = input_path.read_text(encoding="utf-8")
-
-    # Parse JSON into Python objects.
     raw_data = json.loads(raw_text)
 
-    # The export might be a list of conversations (common).
     if not isinstance(raw_data, list):
         raise SystemExit("Expected the top-level JSON to be a list of conversations.")
 
-    # Parse all conversations.
-    conversations: List[Conversation] = []
-    for raw_convo in raw_data:
-        if isinstance(raw_convo, dict):
-            conversations.append(parse_conversation(raw_convo))
+    # Keep only dict conversations.
+    raw_convos: List[Dict[str, Any]] = [c for c in raw_data if isinstance(c, dict)]
 
-    # Print a summary.
+    # ---------
+    # 1) Bucket conversations into projects (including P0000 non-project).
+    # ---------
+    buckets: Dict[Optional[str], List[Dict[str, Any]]] = {}
+    for rc in raw_convos:
+        pk = _project_key_from_raw(rc)  # None => non-project
+        buckets.setdefault(pk, []).append(rc)
+
+    # ---------
+    # 2) Order projects oldest-first (by earliest conversation create_time in the bucket).
+    #    Non-project bucket is always P0000 and always included (even if empty).
+    # ---------
+    def bucket_min_time(bucket: List[Dict[str, Any]]) -> Tuple[int, float, str]:
+        # Find earliest known time; if none known, bucket sorts last.
+        times = [t for t in (_convo_time_from_raw(c) for c in bucket) if t is not None]
+        if not times:
+            # stable tie-break by project key string later
+            return (1, 9e18, "")
+        return (0, min(times), "")
+
+    project_keys = [k for k in buckets.keys() if k is not None]
+
+    # Sort project keys by: (has_time, min_time, key_string)
+    project_keys_sorted = sorted(
+        project_keys,
+        key=lambda k: (
+            bucket_min_time(buckets.get(k, []))[0],
+            bucket_min_time(buckets.get(k, []))[1],
+            str(k),
+        ),
+    )
+
+    # Assign P labels
+    P_label_of: Dict[Optional[str], str] = {None: "P0000"}
+    for i, pk in enumerate(project_keys_sorted, start=1):
+        P_label_of[pk] = f"P{i:04d}"
+
+    # ---------
+    # 3) For each bucket, sort conversations oldest-first and assign C#### within bucket.
+    # ---------
+    # Build an ordered list of (raw_convo, P_label, C_label)
+    ordered_with_labels: List[Tuple[Dict[str, Any], str, str]] = []
+
+    # Non-project first (P0000), then projects in P order
+    bucket_order: List[Optional[str]] = [None] + project_keys_sorted
+
+    for pk in bucket_order:
+        convos_in_bucket = buckets.get(pk, [])
+        convos_sorted = sorted(convos_in_bucket, key=_order_key_time_then_id)
+
+        for j, rc in enumerate(convos_sorted, start=1):
+            p_label = P_label_of.get(pk, "P0000")
+            c_label = f"C{j:04d}"
+            ordered_with_labels.append((rc, p_label, c_label))
+
+    # ---------
+    # 4) Run processing pipeline in this derived order and attach derived identifiers.
+    # ---------
+    processed: List[Dict[str, Any]] = []
+
+    for raw_convo, p_label, c_label in ordered_with_labels:
+        normalized = normalize_conversation(raw_convo)
+        tree = apply_mark_ids(normalized)
+        tree = mark_main_path(tree)
+
+        tree.setdefault("derived", {})
+        tree["derived"]["P"] = p_label
+        tree["derived"]["C"] = c_label
+        tree["derived"]["PC"] = f"{p_label}-{c_label}"
+
+        processed.append(tree)
+
+    return processed
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Convert ChatGPT export conversations.json into processed_tree_v1 "
+            "(render-ready tree format)."
+        )
+    )
+
+    parser.add_argument(
+        "input",
+        nargs="?",
+        default="examples/test_conversations.json",
+        help="Path to conversations.json (defaults to examples/test_conversations.json)",
+    )
+
+    parser.add_argument(
+        "--out",
+        default="examples/test_processed_from_convert.json",
+        help="Output JSON file path (defaults to examples/test_processed_from_convert.json)",
+    )
+
+    args = parser.parse_args()
+
+    input_path = Path(args.input)
+    out_path = Path(args.out)
+
+    if not input_path.exists():
+        raise SystemExit(f"Input file not found: {input_path}")
+
+    processed = convert_file(input_path)
+
+    out_path.write_text(
+        json.dumps(processed, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
     print()
     print("=" * 72)
-    print("ChatGPT Data Export Parser (Stage 1 summary)")
+    print("Conversion complete")
     print("=" * 72)
-    print(f"Input: {input_path}")
-    print(f"Conversations parsed: {len(conversations)}")
-    print()
-
-    # Print each conversation in a readable way.
-    for idx, convo in enumerate(conversations, start=1):
-        print("-" * 72)
-        print(f"[{idx}] Title: {convo.title}")
-        print(f"    ID: {convo.id}")
-
-        # Show project tag if present.
-        if convo.project and convo.project.get("name"):
-            print(f"    Project: {convo.project.get('name')}")
-
-        # Show how many turns we extracted.
-        print(f"    Turns: {len(convo.turns)}")
-        print()
-
-        # Print the first few turns (not infinite spam).
-        # Stage 1: print up to 5 turns.
-        for t_index, turn in enumerate(convo.turns[:5], start=1):
-            print(f"    Turn {t_index}:")
-            print(f"      User: {turn.user.text}")
-
-            # Main assistant response (if any).
-            if turn.assistant is not None:
-                print(f"      Assistant: {turn.assistant.text}")
-            else:
-                print("      Assistant: [missing]")
-
-            # Alternate assistant answers.
-            if turn.alternates:
-                print("      Alternates:")
-                for a_i, alt in enumerate(turn.alternates, start=1):
-                    print(f"        ({a_i}) {alt.text}")
-
-            print()
-
-        # If there are more turns than shown, say so.
-        if len(convo.turns) > 5:
-            print(f"    ... ({len(convo.turns) - 5} more turns not shown)")
-            print()
-
-    print("Done.")
+    print(f"Input:  {input_path}")
+    print(f"Output: {out_path}")
+    print(f"Conversations: {len(processed)}")
     print()
 
 
-# Standard Python pattern: run main() only if executed as a script.
 if __name__ == "__main__":
     main()

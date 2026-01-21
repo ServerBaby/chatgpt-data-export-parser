@@ -1,70 +1,110 @@
 """
 model.py
 
-This file defines the *internal* data shapes used by the program.
+This file defines the *internal* data shapes used by the processing pipeline.
 
-Think of this as: "What is a Conversation? What is a Message?"
-It does NOT read JSON and it does NOT write output files.
+Think of this as:
+- "What is a processed conversation tree?"
+- "What does a processed node look like?"
+
+It does NOT parse raw export JSON directly.
+It does NOT render output formats like HTML/MD/PDF.
 
 It only defines clean structures that other code can use.
 """
 
-# dataclass = an easy way to define "data holder" classes in Python.
-from dataclasses import dataclass, field
+from __future__ import annotations
 
-# Optional means "this value can be a string OR it can be None".
-from typing import Optional, List, Dict
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
-class Message:
+class ProcessedMessage:
     """
-    Represents a single message in a conversation.
+    Represents the display-friendly message content for a node.
 
-    role: who wrote it (e.g. "user", "assistant", "system", "tool")
-    text: the readable content for the message (or a placeholder)
-    timestamp: when it happened (float seconds since epoch) if available
+    role:
+      - "user", "assistant", "system", "tool", etc.
+    source_message_id:
+      - OpenAI's message id if present (may be missing)
+    create_time:
+      - float seconds since epoch, if present
+    text:
+      - plain text (already extracted from the raw export content)
     """
 
     role: str
-    text: str
-    timestamp: Optional[float] = None
+    source_message_id: str = ""
+    create_time: Optional[float] = None
+    text: str = ""
 
 
 @dataclass
-class Turn:
+class ProcessedNode:
     """
-    Represents one "turn" of conversation:
-    - a user message
-    - the assistant's main response
-    - any alternate assistant responses (regenerations)
+    Represents one node in the processed tree.
+
+    IMPORTANT:
+    - node_key is NOT stored here.
+      The node_key is the dictionary key in ProcessedConversation.nodes.
+
+    source_node_id:
+      - the original OpenAI mapping node id (UUID-like string)
+      - this is how you trace back to the raw export
+
+    parent:
+      - the processed node_key of the parent (NOT the source_node_id)
+      - None if this is the root
+
+    children:
+      - list of processed node_keys of the children (NOT source_node_ids)
+
+    message:
+      - None if this is a structural node with no message
+      - otherwise a ProcessedMessage
     """
 
-    user: Message
-    assistant: Optional[Message] = None
+    source_node_id: str
+    parent: Optional[str]
+    children: List[str] = field(default_factory=list)
+    message: Optional[ProcessedMessage] = None
 
-    # alternates = extra assistant answers at the same step
-    alternates: List[Message] = field(default_factory=list)
+    # derived = extra computed fields that ALL renderers might want.
+    # Example fields:
+    # - "N", "T", "B", "A"
+    # - "timestamp_human"
+    # - "is_main_path"
+    derived: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
-class Conversation:
+class ProcessedConversation:
     """
-    Represents a whole conversation thread.
+    Represents one processed conversation in "processed_tree_v1" format.
 
-    id: conversation id from the export
-    title: title from the export (may be missing)
-    create_time / update_time: timestamps if present
-    project: optional project metadata (if the export includes it)
-    turns: the ordered list of turns
+    schema:
+      - always "processed_tree_v1" for this output format
+    conversation_id:
+      - OpenAI conversation id
+    title:
+      - conversation title or "Untitled"
+    create_time / update_time:
+      - float seconds since epoch if present
+    project:
+      - optional dict like {"id": "...", "name": "..."} if present
+    root_node_id:
+      - the processed node_key of the root node
+    nodes:
+      - dict mapping processed node_key -> ProcessedNode
     """
 
-    id: str
+    schema: str
+    conversation_id: str
     title: str
     create_time: Optional[float] = None
     update_time: Optional[float] = None
-
-    # project holds tags like {"id": "...", "name": "..."} if present.
     project: Optional[Dict[str, str]] = None
 
-    turns: List[Turn] = field(default_factory=list)
+    root_node_id: str = ""
+    nodes: Dict[str, ProcessedNode] = field(default_factory=dict)

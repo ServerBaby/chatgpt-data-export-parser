@@ -4,20 +4,13 @@ derive_ids.py
 Stage: NORMALIZED TREE -> DERIVED IDS (NTBA) + MARK IDS
 
 This stage computes:
-- A = alternate label among siblings (chronological 1..X) as "A{i}of{X}"  (NO spaces)
-- B = branch count along the path from root (counts ancestors with >1 child), as "B####"
-- T = chronological turn index across the whole conversation, as "T####"
-- N = DFS order index across the whole tree, as "N####"
-
-Special root tokens:
-- Root N is "N0000"  (so the first real node after root is N0001, etc.)
-- Root T is "T0000"
-- Root A is "ARooT"
+- A = alternate label among siblings (chronological 1..X) as "A i of X"
+- B = branch count along the path from root (counts ancestors with >1 child)
+- T = chronological turn index across the whole conversation
+- N = DFS order index across the whole tree
 
 Then it builds:
-- mark_id string per node, e.g.:
-    - "N0012-T0015-B0003-A2of4"
-    - "N0000-T0000-B0000-ARooT"
+- mark_id string per node, e.g. "N0012-T0015-B03-A 2 of 4"
 - a rewritten tree where:
     - nodes dict keys are mark_ids
     - parent/children values are mark_ids
@@ -29,10 +22,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
-
-# -----------------------------------------------------------------------------
-# Time formatting (display-only)
-# -----------------------------------------------------------------------------
 
 def format_human_time(ts: Optional[float]) -> str:
     """
@@ -47,10 +36,6 @@ def format_human_time(ts: Optional[float]) -> str:
     except Exception:
         return ""
 
-
-# -----------------------------------------------------------------------------
-# Deterministic ordering helpers
-# -----------------------------------------------------------------------------
 
 def sort_children_by_time(nodes: Dict[str, Any], child_ids: List[str]) -> List[str]:
     """
@@ -72,18 +57,12 @@ def sort_children_by_time(nodes: Dict[str, Any], child_ids: List[str]) -> List[s
     return sorted(list(child_ids), key=key)
 
 
-# -----------------------------------------------------------------------------
-# A / B / T / N derivations
-# -----------------------------------------------------------------------------
-
 def compute_A_labels(nodes: Dict[str, Any], root_id: str) -> Dict[str, str]:
     """
     A label exists whenever a node has a parent.
     It is the child's position among its siblings after deterministic sorting.
 
-    If there is only one sibling, the label is still "A1of1".
-
-    Root gets A="ARooT".
+    If there is only one sibling, the label is still "A 1 of 1".
     """
     # Build parent -> [children] map.
     parent_to_children: Dict[str, List[str]] = {}
@@ -100,15 +79,17 @@ def compute_A_labels(nodes: Dict[str, Any], root_id: str) -> Dict[str, str]:
         total = len(kids_sorted)
 
         for idx, child_id in enumerate(kids_sorted, start=1):
-            A[child_id] = f"A{idx}of{total}"
+            A[child_id] = f"A {idx} of {total}"
 
         # Also rewrite the stored child order (so everyone downstream agrees).
         # This is important for consistent left->right rendering.
         if parent_id in nodes:
             nodes[parent_id]["children"] = kids_sorted
 
-    # Root is a special token (never blank).
-    A[root_id] = "ARooT"
+    # Root has no A label (no parent).
+    if root_id in A:
+        del A[root_id]
+
     return A
 
 
@@ -118,12 +99,12 @@ def compute_B_labels(nodes: Dict[str, Any], root_id: str) -> Dict[str, str]:
 
     A "branchpoint" is a node with >1 child.
 
-    Root is "B0000".
+    Root is "B00".
     """
-    B_count: Dict[str, int] = {}
+    B: Dict[str, int] = {}
 
     def dfs(node_id: str, branch_count: int) -> None:
-        B_count[node_id] = branch_count
+        B[node_id] = branch_count
 
         kids = nodes.get(node_id, {}).get("children", []) or []
         is_branchpoint = len(kids) > 1
@@ -134,7 +115,7 @@ def compute_B_labels(nodes: Dict[str, Any], root_id: str) -> Dict[str, str]:
 
     dfs(root_id, 0)
 
-    return {nid: f"B{B_count[nid]:04d}" for nid in B_count}
+    return {nid: f"B{B[nid]:02d}" for nid in B}
 
 
 def compute_T_labels(nodes: Dict[str, Any]) -> Dict[str, str]:
@@ -145,7 +126,8 @@ def compute_T_labels(nodes: Dict[str, Any]) -> Dict[str, str]:
     - nodes WITH create_time come first, sorted by create_time then node_id
     - nodes WITHOUT create_time come last, sorted by node_id
 
-    Root will be overridden to "T0000" in apply_mark_ids().
+    This keeps "real messages" in the timeline order, but still assigns T to
+    structural nodes so they have a complete NTBA string.
     """
     def key(nid: str) -> Tuple[int, float, str]:
         msg = (nodes.get(nid, {}).get("message") or {})
@@ -170,12 +152,9 @@ def compute_N_labels(nodes: Dict[str, Any], root_id: str) -> Dict[str, str]:
     N is a DFS (depth-first) numbering over the tree.
 
     DFS uses the already-normalized children order (which we fix in compute_A_labels).
-
-    IMPORTANT:
-    - We start the counter at -1 so the first visited node (root) becomes N0000.
     """
     N: Dict[str, str] = {}
-    counter = -1  # so root becomes N0000
+    counter = 0
 
     def dfs(nid: str) -> None:
         nonlocal counter
@@ -190,24 +169,16 @@ def compute_N_labels(nodes: Dict[str, Any], root_id: str) -> Dict[str, str]:
     return N
 
 
-# -----------------------------------------------------------------------------
-# Mark-id formatting
-# -----------------------------------------------------------------------------
-
 def build_mark_id(N: str, T: str, B: str, A: str) -> str:
     """
-    A single printable mark-id string.
+    A single printable ID string.
 
-    Format:
-      N0001-T0001-B0000-A1of1
-      N0000-T0000-B0000-ARooT
+    You can change formatting later without changing the rest of the pipeline.
     """
-    return f"{N}-{T}-{B}-{A}"
+    # Root has no A in our rules. Give it a consistent placeholder.
+    A_value = A or "A 0 of 0"
+    return f"{N} {T} {B} {A_value}"
 
-
-# -----------------------------------------------------------------------------
-# Main entry
-# -----------------------------------------------------------------------------
 
 def apply_mark_ids(normalized: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -247,21 +218,17 @@ def apply_mark_ids(normalized: Dict[str, Any]) -> Dict[str, Any]:
     T = compute_T_labels(nodes)
     N = compute_N_labels(nodes, root_source)
 
-    # 3) Override root tokens exactly as requested.
-    T[root_source] = "T0000"
-    A[root_source] = "ARooT"
-
-    # 4) Create mark id per source node id.
+    # 3) Create mark id per source node id.
     mark_of: Dict[str, str] = {}
     for source_node_id in nodes.keys():
         mark_of[source_node_id] = build_mark_id(
             N=N.get(source_node_id, "N0000"),
             T=T.get(source_node_id, "T0000"),
-            B=B.get(source_node_id, "B0000"),
-            A=A.get(source_node_id, "A0of0"),
+            B=B.get(source_node_id, "B00"),
+            A=A.get(source_node_id, ""),
         )
 
-    # 5) Build processed nodes dict keyed by mark id.
+    # 4) Build processed nodes dict keyed by mark id.
     processed_nodes: Dict[str, Any] = {}
     for source_node_id, node in nodes.items():
         mark_id = mark_of[source_node_id]
@@ -283,13 +250,6 @@ def apply_mark_ids(normalized: Dict[str, Any]) -> Dict[str, Any]:
                 "text": msg.get("text", ""),
             }
 
-        # Fix: root has no message; use the conversation create_time for display.
-        ts_for_display: Optional[float] = None
-        if msg and (msg.get("create_time") is not None):
-            ts_for_display = msg.get("create_time")
-        elif source_node_id == root_source:
-            ts_for_display = create_time
-
         processed_nodes[mark_id] = {
             "source_node_id": source_node_id,
             "parent": parent_mark,
@@ -300,7 +260,9 @@ def apply_mark_ids(normalized: Dict[str, Any]) -> Dict[str, Any]:
                 "T": T.get(source_node_id, ""),
                 "B": B.get(source_node_id, ""),
                 "A": A.get(source_node_id, ""),
-                "timestamp_human": format_human_time(ts_for_display),
+                "timestamp_human": format_human_time(
+                    (msg or {}).get("create_time") if msg else None
+                ),
             },
         }
 
